@@ -55,17 +55,20 @@ export default function Founder() {
           )}
           style={{ transitionDelay: '150ms' }}
         >
-          {/* 左：Hedwig 头像/符号 */}
+          {/* 左：Hedwig 头像 */}
           <div className="flex flex-col items-center lg:items-start">
             <div className="relative">
               {/* 装饰光晕 */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-moon/20 via-amber/10 to-transparent blur-2xl" />
-              {/* H 装饰框 */}
-              <div className="relative flex h-60 w-60 items-center justify-center rounded-full border-2 border-amber/30 bg-ink-900/80 shadow-glow-amber md:h-72 md:w-72">
-                <div className="absolute inset-2 rounded-full border border-moon/20" />
-                <span className="display-serif text-8xl font-light leading-none text-gradient-amber md:text-9xl">
-                  H
-                </span>
+              {/* 头像外框 */}
+              <div className="relative h-60 w-60 overflow-hidden rounded-full border-2 border-amber/30 bg-ink-900/80 shadow-glow-amber md:h-72 md:w-72">
+                <div className="absolute inset-2 overflow-hidden rounded-full border border-moon/20">
+                  <img
+                    src="/assets/Night_Watchman/Hedwig.png"
+                    alt="Hedwig"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
                 {/* 顶点标注 */}
                 <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full border border-amber/40 bg-ink-950 px-2.5 py-0.5 font-mono text-[0.6rem] text-amber/80">
                   HEDWIG · 01
