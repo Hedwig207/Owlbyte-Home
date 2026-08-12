@@ -117,7 +117,7 @@ export const PRODUCTS: Product[] = [
     name: 'OpenCDK',
     tagline: '工具链调度器',
     description: '为工程师打造的多语言工具链调度器。纯 C 编写，零依赖，清华镜像加速——在最深的夜里，一键点亮十四种语言的工具链。',
-    href: 'https://github.com/Hedwig207/OpenCDK',
+    href: '/opencdk',
     status: 'GA',
     span: 'regular',
     accent: 'moon',
@@ -126,10 +126,9 @@ export const PRODUCTS: Product[] = [
 ];
 
 export const SOCIALS: Social[] = [
-  { label: 'GitHub', handle: '@owlbyte', href: '#' },
-  { label: 'X / Twitter', handle: '@owlbyte', href: '#' },
-  { label: 'Discord', handle: 'owlbyte', href: '#' },
-  { label: 'Email', handle: 'hi@owlbyte.io', href: '#' },
+  { label: 'GitHub', handle: '@Hedwig207', href: 'https://github.com/Hedwig207' },
+  { label: 'Discussions', handle: 'community', href: 'https://github.com/orgs/community/discussions/' },
+  { label: 'Email', handle: 'hedwig38@163.com', href: 'mailto:hedwig38@163.com' },
 ];
 
 export const STATS: Stat[] = [

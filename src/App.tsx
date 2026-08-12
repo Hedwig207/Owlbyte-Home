@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from '@/pages/Home';
+import OpenCDKPage from '@/pages/OpenCDK';
 import { useCursorGlow } from '@/hooks/useCursorGlow';
 
 function CursorGlow() {
@@ -19,6 +20,7 @@ export default function App() {
       <CursorGlow />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/opencdk" element={<OpenCDKPage />} />
       </Routes>
     </Router>
   );

@@ -28,6 +28,15 @@ html, body {
   overflow-x: hidden;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* 锚点跳转时留出顶部导航栏的空间 */
+:target {
+  scroll-margin-top: 96px;
+}
+
 /* 默认深色主题（品牌首页始终深色）
    dark 类直接在 index.html 的 <html> 标签上设置 */
 

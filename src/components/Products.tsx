@@ -1,6 +1,7 @@
 import { useReveal } from '@/hooks/useReveal';
 import { PRODUCTS, type Product } from '@/data/brand';
 import { ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const STATUS_LABEL: Record<Product['status'], string> = {
@@ -26,9 +27,9 @@ function Card({ product, index }: { product: Product; index: number }) {
   const isMoon = product.accent === 'moon';
 
   return (
-    <a
+    <Link
       ref={ref}
-      href={product.href}
+      to={product.href}
       className={cn(
         'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-parchment/10 bg-ink-800/40 p-7 transition-all duration-700 hover:-translate-y-1',
         SPAN_CLASS[product.span],
@@ -94,7 +95,7 @@ function Card({ product, index }: { product: Product; index: number }) {
       <span className="pointer-events-none absolute right-3 top-3 font-mono text-[0.55rem] text-slate-fog/60">
         0{index + 1}
       </span>
-    </a>
+    </Link>
   );
 }
 

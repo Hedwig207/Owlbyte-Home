@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import OwlLogo from './OwlLogo';
 import { NAV_ITEMS, SOCIALS, PRODUCTS } from '@/data/brand';
 import { cn } from '@/lib/utils';
@@ -116,17 +117,25 @@ function FooterCol({ title, items }: { title: string; items: { label: string; hr
     <div>
       <p className="mono-label mb-5 text-slate-fog">{title}</p>
       <ul className="space-y-3">
-        {items.map((it, i) => (
-          <li key={`${it.label}-${i}`}>
-            <a
-              href={it.href}
-              className="group inline-flex items-center gap-2 text-sm text-parchment/70 transition-colors hover:text-amber"
-            >
-              <span className="h-px w-0 bg-amber transition-all duration-300 group-hover:w-3" />
-              {it.label}
-            </a>
-          </li>
-        ))}
+        {items.map((it, i) => {
+          const isInternal = it.href.startsWith('/');
+          const cls = 'group inline-flex items-center gap-2 text-sm text-parchment/70 transition-colors hover:text-amber';
+          return (
+            <li key={`${it.label}-${i}`}>
+              {isInternal ? (
+                <Link to={it.href} className={cls}>
+                  <span className="h-px w-0 bg-amber transition-all duration-300 group-hover:w-3" />
+                  {it.label}
+                </Link>
+              ) : (
+                <a href={it.href} className={cls}>
+                  <span className="h-px w-0 bg-amber transition-all duration-300 group-hover:w-3" />
+                  {it.label}
+                </a>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
