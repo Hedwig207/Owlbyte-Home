@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from '@/pages/Home';
-import OpenCDKPage from '@/pages/OpenCDK';
 import ProjectsPage from '@/pages/Projects';
+import ProjectDetailPage from '@/pages/ProjectDetail';
 import WatchmenPage from '@/pages/Watchmen';
 import WatchmanHedwigPage from '@/pages/WatchmanHedwig';
 import { useCursorGlow } from '@/hooks/useCursorGlow';
@@ -23,7 +23,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/project" element={<ProjectsPage />} />
-        <Route path="/project/opencdk" element={<OpenCDKPage />} />
+        <Route path="/project/:id" element={<ProjectDetailPage />} />
         <Route path="/watchman" element={<WatchmenPage />} />
         <Route path="/watchman/hedwig" element={<WatchmanHedwigPage />} />
       </Routes>
