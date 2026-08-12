@@ -3,7 +3,6 @@ import { PRODUCTS, type Product } from '@/data/brand';
 import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-
 const STATUS_LABEL: Record<Product['status'], string> = {
   GA: '正式可用',
   BETA: '公测中',
@@ -114,9 +113,9 @@ export default function Products() {
               四件正在打磨的工具，每一件都对应一种观察方式。
             </p>
           </div>
-          <a href="#" className="btn-ghost">
-            查看路线图
-          </a>
+          <Link to="/project" className="btn-ghost">
+            查看更多
+          </Link>
         </div>
 
         {/* 非对称网格 */}

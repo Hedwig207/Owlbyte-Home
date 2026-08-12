@@ -2,6 +2,9 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from '@/pages/Home';
 import OpenCDKPage from '@/pages/OpenCDK';
+import ProjectsPage from '@/pages/Projects';
+import WatchmenPage from '@/pages/Watchmen';
+import WatchmanHedwigPage from '@/pages/WatchmanHedwig';
 import { useCursorGlow } from '@/hooks/useCursorGlow';
 
 function CursorGlow() {
@@ -10,7 +13,6 @@ function CursorGlow() {
 }
 
 export default function App() {
-  // 确保根元素始终为 dark 主题（品牌首页设计为深色）
   useEffect(() => {
     document.documentElement.classList.add('dark');
   }, []);
@@ -20,7 +22,10 @@ export default function App() {
       <CursorGlow />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/opencdk" element={<OpenCDKPage />} />
+        <Route path="/project" element={<ProjectsPage />} />
+        <Route path="/project/opencdk" element={<OpenCDKPage />} />
+        <Route path="/watchman" element={<WatchmenPage />} />
+        <Route path="/watchman/hedwig" element={<WatchmanHedwigPage />} />
       </Routes>
     </Router>
   );

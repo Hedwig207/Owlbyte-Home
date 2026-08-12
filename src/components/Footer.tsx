@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import OwlLogo from './OwlLogo';
 import { NAV_ITEMS, SOCIALS, PRODUCTS } from '@/data/brand';
 import { cn } from '@/lib/utils';
@@ -113,22 +113,46 @@ export default function Footer() {
 }
 
 function FooterCol({ title, items }: { title: string; items: { label: string; href: string }[] }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const onHome = location.pathname === '/';
+
+  const handleClick = (e: React.MouseEvent, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const id = href.slice(1);
+      if (onHome) {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        else window.location.hash = href;
+      } else {
+        navigate('/', { state: { scrollTo: id } });
+      }
+    }
+  };
+
   return (
     <div>
       <p className="mono-label mb-5 text-slate-fog">{title}</p>
       <ul className="space-y-3">
         {items.map((it, i) => {
-          const isInternal = it.href.startsWith('/');
+          const isRoute = it.href.startsWith('/');
+          const isAnchor = it.href.startsWith('#');
           const cls = 'group inline-flex items-center gap-2 text-sm text-parchment/70 transition-colors hover:text-amber';
           return (
             <li key={`${it.label}-${i}`}>
-              {isInternal ? (
+              {isRoute ? (
                 <Link to={it.href} className={cls}>
                   <span className="h-px w-0 bg-amber transition-all duration-300 group-hover:w-3" />
                   {it.label}
                 </Link>
+              ) : isAnchor ? (
+                <a href={onHome ? it.href : `/${it.href}`} onClick={(e) => handleClick(e, it.href)} className={cls}>
+                  <span className="h-px w-0 bg-amber transition-all duration-300 group-hover:w-3" />
+                  {it.label}
+                </a>
               ) : (
-                <a href={it.href} className={cls}>
+                <a href={it.href} target={it.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" className={cls}>
                   <span className="h-px w-0 bg-amber transition-all duration-300 group-hover:w-3" />
                   {it.label}
                 </a>

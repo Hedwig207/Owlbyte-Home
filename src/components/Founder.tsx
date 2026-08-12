@@ -1,6 +1,7 @@
 import { useReveal } from '@/hooks/useReveal';
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Wrench, Users, Compass, Shield, Github, Mail } from 'lucide-react';
+import { Wrench, Users, Compass, Shield, Github, Mail, ArrowUpRight } from 'lucide-react';
 
 const ROLES = [
   { label: '首席开发者', icon: Wrench },
@@ -37,14 +38,19 @@ export default function Founder() {
         {/* 区块头 */}
         <div
           className={cn(
-            'mb-16 text-center transition-all duration-1000',
+            'mb-16 flex flex-wrap items-end justify-between gap-6 transition-all duration-1000',
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           )}
         >
-          <p className="mono-label text-moon/70">§ 02.5 — The Keeper</p>
-          <h2 className="mt-3 display-serif text-4xl font-light leading-tight text-parchment md:text-6xl">
-            守夜人<span className="italic text-gradient-moon">·</span> Hedwig
-          </h2>
+          <div className="text-center md:text-left">
+            <p className="mono-label text-moon/70">§ 02.5 — The Keeper</p>
+            <h2 className="mt-3 display-serif text-4xl font-light leading-tight text-parchment md:text-6xl">
+              守夜人<span className="italic text-gradient-moon">·</span> Hedwig
+            </h2>
+          </div>
+          <Link to="/watchman" className="btn-ghost">
+            查看更多
+          </Link>
         </div>
 
         {/* 主体：左头像 + 右信息 */}
@@ -179,13 +185,22 @@ export default function Founder() {
           </div>
         </div>
 
-        {/* 底部分隔 */}
-        <div className="mt-24 flex items-center justify-center gap-3 text-slate-fog/40">
-          <span className="h-px w-16 bg-gradient-to-r from-transparent to-parchment/20" />
-          <Wrench className="h-4 w-4" />
-          <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em]">night-keeper · hedwig</span>
-          <Users className="h-4 w-4" />
-          <span className="h-px w-16 bg-gradient-to-l from-transparent to-parchment/20" />
+        {/* 底部分隔 + 跳转详情 */}
+        <div className="mt-24 flex flex-col items-center justify-center gap-5 text-slate-fog/40">
+          <Link
+            to="/watchman/hedwig"
+            className="group inline-flex items-center gap-2 rounded-full border border-parchment/15 bg-ink-800/40 px-5 py-2 font-mono text-xs text-parchment/70 transition-all duration-300 hover:border-amber/40 hover:bg-amber/5 hover:text-amber"
+          >
+            <span className="uppercase tracking-[0.15em]">查看人物详情</span>
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+          <div className="flex items-center justify-center gap-3 text-slate-fog/40">
+            <span className="h-px w-16 bg-gradient-to-r from-transparent to-parchment/20" />
+            <Wrench className="h-4 w-4" />
+            <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em]">night-keeper · hedwig</span>
+            <Users className="h-4 w-4" />
+            <span className="h-px w-16 bg-gradient-to-l from-transparent to-parchment/20" />
+          </div>
         </div>
       </div>
     </section>

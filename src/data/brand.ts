@@ -29,6 +29,20 @@ export type Product = {
   symbol: string; // 短代号字符
 };
 
+export type Watchman = {
+  id: string;
+  name: string;
+  code: string; // 代号
+  roleLabel: string;
+  accent: 'amber' | 'moon' | 'parchment';
+  description: string;
+  href: string;
+  roles: string[];
+  inDevProjects: string[];
+  avatar?: string; // public 路径
+  quote: string;
+};
+
 export type Social = {
   label: string;
   handle: string;
@@ -117,11 +131,39 @@ export const PRODUCTS: Product[] = [
     name: 'OpenCDK',
     tagline: '工具链调度器',
     description: '为工程师打造的多语言工具链调度器。纯 C 编写，零依赖，清华镜像加速——在最深的夜里，一键点亮十四种语言的工具链。',
-    href: '/opencdk',
+    href: '/project/opencdk',
     status: 'GA',
     span: 'regular',
     accent: 'moon',
     symbol: 'OC',
+  },
+];
+
+export const WATCHMEN: Watchman[] = [
+  {
+    id: 'hedwig',
+    name: 'Hedwig',
+    code: 'HEDWIG · 01',
+    roleLabel: 'night-keeper',
+    accent: 'amber',
+    description: 'OwlByte 几乎所有项目（游戏除外）均由 Hedwig 独立完成全栈开发——从第一行代码到最后一像素的打磨，在最深的夜里由他亲手点亮。',
+    href: '/watchman/hedwig',
+    roles: ['首席开发者', '核心创始人之一', '工作室主理人', '工作室顶梁柱'],
+    inDevProjects: [
+      'Assembly Coder',
+      'Bitlang',
+      'codechat',
+      'LE',
+      'Mandel',
+      'OpenCDK',
+      'openHDK',
+      'openRender',
+      'Owl Craft Luncher',
+      'OwlOS',
+      'SuyuanAI',
+    ],
+    avatar: '/assets/Night_Watchman/Hedwig.png',
+    quote: '一个人就是一支夜间工程队伍。',
   },
 ];
 
