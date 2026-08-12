@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 const STATUS_LABEL: Record<Product['status'], string> = {
   GA: '正式可用',
-  BETA: '公测中',
+  BETA: '预发布',
   PREVIEW: '预览',
 };
 
