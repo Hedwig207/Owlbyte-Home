@@ -190,6 +190,7 @@ const mockUsers = new Map<string, {
   emailVerified: boolean;
   passwordHash: string;
 }>();
+const mockUsersById = new Map<string, string>();
 
 // Initialize default mock user
 hashPassword('owlbyte123456').then(hash => {
@@ -202,6 +203,7 @@ hashPassword('owlbyte123456').then(hash => {
     emailVerified: true,
     passwordHash: hash,
   });
+  mockUsersById.set('user_admin', 'admin@owlbyte.home');
 });
 
 const mockRefreshTokens = new Map<string, string>();
@@ -242,6 +244,34 @@ export async function dbFindUserByEmail(env: Env, email: string): Promise<any> {
   }
 }
 
+export async function dbFindUserById(env: Env, id: string): Promise<any> {
+  if (isMockMode(env)) {
+    const email = mockUsersById.get(id);
+    if (!email) return null;
+    return mockUsers.get(email) || null;
+  }
+  try {
+    const result = await env.DATABASE.prepare(
+      'SELECT id, email, display_name, avatar_url, role, email_verified, password_hash FROM users WHERE id = ?'
+    ).bind(id).all();
+    if (result.results && result.results.length > 0) {
+      const row = result.results[0];
+      return {
+        id: row.id,
+        email: row.email,
+        displayName: row.display_name,
+        avatarUrl: row.avatar_url,
+        role: row.role,
+        emailVerified: !!row.email_verified,
+        passwordHash: row.password_hash,
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function dbCreateUser(env: Env, user: {
   id: string; email: string; displayName: string; passwordHash: string;
 }): Promise<boolean> {
@@ -257,6 +287,7 @@ export async function dbCreateUser(env: Env, user: {
       emailVerified: false,
       passwordHash: user.passwordHash,
     });
+    mockUsersById.set(user.id, user.email);
     return true;
   }
   try {
