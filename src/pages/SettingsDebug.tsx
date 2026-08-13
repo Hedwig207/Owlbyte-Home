@@ -19,8 +19,6 @@ import { useUiStore } from '@/stores/uiStore';
 import { useTheme } from '@/hooks/useTheme';
 import { CACHE_PREFIX } from '@/lib/consts';
 
-declare const __APP_VERSION__: string;
-
 type TabKey = 'logs' | 'settings';
 
 export default function SettingsDebug() {
@@ -240,8 +238,8 @@ function LogItem({ log }: { log: ErrorLog }) {
 }
 
 function SettingsPanel() {
-    const { autoNight, setAutoNight } = useUiStore();
-    const { isDark, toggleTheme } = useTheme();
+  const { themeMode, autoNight, setThemeMode, setAutoNight } = useUiStore();
+  const { isDark } = useTheme();
 
   const clearGithubCache = () => {
     try {
@@ -267,38 +265,44 @@ function SettingsPanel() {
         <h2 className="mono-label mb-4 text-amber/70">外观</h2>
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-2xl border border-parchment/10 bg-ink-800/40 p-4">
-              <div className="flex items-center gap-3">
-                {isDark ? (
-                  <Moon className="h-5 w-5 text-moon" />
-                ) : (
-                  <Sun className="h-5 w-5 text-amber" />
-                )}
-                <div>
-                  <p className="text-sm text-parchment">主题</p>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-medium ${
-                      isDark
-                        ? 'bg-moon/20 text-moon border border-moon/40'
-                        : 'bg-amber/20 text-amber border border-amber/40'
-                    }`}
-                  >
-                    当前：{isDark ? '深色' : '浅色'}
-                  </span>
-                </div>
+            <div className="flex items-center gap-3">
+              {isDark ? (
+                <Moon className="h-5 w-5 text-moon" />
+              ) : (
+                <Sun className="h-5 w-5 text-amber" />
+              )}
+              <div>
+                <p className="text-sm text-parchment">主题</p>
+                <p className="text-xs text-parchment/50">
+                  当前：{isDark ? '深色' : '浅色'}
+                </p>
               </div>
+            </div>
+            <div className="flex gap-1">
               <button
                 type="button"
-                onClick={toggleTheme}
-                className="flex items-center gap-2 rounded-full px-4 py-1.5 text-xs transition-all border border-parchment/20 text-parchment/70 hover:border-parchment/40 hover:text-parchment"
+                onClick={() => setThemeMode('dark')}
+                className={`rounded-full px-4 py-1.5 text-xs transition-all ${
+                  themeMode === 'dark'
+                    ? 'bg-moon/20 text-moon border border-moon/40'
+                    : 'text-parchment/50 hover:text-parchment'
+                }`}
               >
-                {isDark ? (
-                  <Sun className="h-3.5 w-3.5 text-amber" />
-                ) : (
-                  <Moon className="h-3.5 w-3.5 text-moon" />
-                )}
-                {isDark ? '浅色' : '深色'}
+                深色
+              </button>
+              <button
+                type="button"
+                onClick={() => setThemeMode('light')}
+                className={`rounded-full px-4 py-1.5 text-xs transition-all ${
+                  themeMode === 'light'
+                    ? 'bg-amber/20 text-amber border border-amber/40'
+                    : 'text-parchment/50 hover:text-parchment'
+                }`}
+              >
+                浅色
               </button>
             </div>
+          </div>
 
           <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-parchment/10 bg-ink-800/40 p-4">
             <div>
@@ -352,14 +356,18 @@ function SettingsPanel() {
       </section>
 
       <section>
-          <h2 className="mono-label mb-4 text-amber/70">版本信息</h2>
-          <div className="rounded-2xl border border-parchment/10 bg-ink-800/40 p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-parchment/70">OwlByte Home</span>
-              <p className="font-mono text-[0.7rem] text-slate-fog/50">v{__APP_VERSION__}</p>
-            </div>
+        <h2 className="mono-label mb-4 text-amber/70">版本信息</h2>
+        <div className="rounded-2xl border border-parchment/10 bg-ink-800/40 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-parchment/70">OwlByte Home</span>
+            <span className="font-mono text-xs text-parchment/50">v0.0.0</span>
           </div>
-        </section>
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-sm text-parchment/70">构建渠道</span>
+            <span className="font-mono text-xs text-parchment/50">nightly</span>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
