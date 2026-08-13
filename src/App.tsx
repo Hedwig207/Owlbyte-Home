@@ -8,8 +8,10 @@ import WatchmanHedwigPage from '@/pages/WatchmanHedwig';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CommandPalette from '@/components/command/CommandPalette';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { useCursorGlow } from '@/hooks/useCursorGlow';
 import { useTheme } from '@/hooks/useTheme';
+import { useVisitorHeartbeat } from '@/hooks/useVisitorHeartbeat';
 import { installErrorHandlers } from '@/lib/browserLog';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/lib/api';
@@ -33,6 +35,7 @@ function CursorGlow() {
 
 function AppShell() {
   useTheme();
+  useVisitorHeartbeat();
 
   useEffect(() => {
     installErrorHandlers();
@@ -52,7 +55,7 @@ function AppShell() {
   }, []);
 
   return (
-    <>
+    <ErrorBoundary>
       <CursorGlow />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -88,7 +91,7 @@ function AppShell() {
         <Route path="/settings" element={<SettingsDebugPage />} />
       </Routes>
       <CommandPalette />
-    </>
+    </ErrorBoundary>
   );
 }
 
