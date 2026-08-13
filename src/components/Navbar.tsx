@@ -13,11 +13,17 @@ function NavAnchor({ item }: { item: typeof NAV_ITEMS[number] }) {
   const location = useLocation();
   const navigate = useNavigate();
   const onHome = location.pathname === '/';
+  const isRoute = item.href.startsWith('/');
+  const isActive = !isRoute && onHome ? false : location.pathname === item.href;
 
   const onClick = (e: React.MouseEvent) => {
-    const hash = item.href.startsWith('#') ? item.href : '#';
+    if (isRoute) {
+      e.preventDefault();
+      navigate(item.href);
+      return;
+    }
+    const hash = item.href;
     if (onHome) {
-      // 首页内滚动：默认浏览器锚点行为 + 手动滚动平滑
       e.preventDefault();
       const targetId = hash.slice(1);
       const target = document.getElementById(targetId);
@@ -27,7 +33,6 @@ function NavAnchor({ item }: { item: typeof NAV_ITEMS[number] }) {
         window.location.hash = hash;
       }
     } else {
-      // 子页面 → 跳到首页并滚动
       e.preventDefault();
       navigate('/', { replace: false, state: { scrollTo: hash.slice(1) } });
     }
@@ -35,15 +40,24 @@ function NavAnchor({ item }: { item: typeof NAV_ITEMS[number] }) {
 
   return (
     <a
-      href={onHome ? item.href : `/${item.href}`}
+      href={isRoute ? item.href : onHome ? item.href : `/${item.href}`}
       onClick={onClick}
-      className="group relative inline-flex items-center gap-1.5 text-sm text-parchment/70 transition-colors hover:text-parchment"
+      className={cn(
+        'group relative inline-flex items-center gap-1.5 text-sm transition-colors hover:text-parchment',
+        isActive ? 'text-amber' : 'text-parchment/70'
+      )}
     >
-      <span className="font-mono text-[0.65rem] text-amber/60 transition-colors group-hover:text-amber">
+      <span className={cn(
+        'font-mono text-[0.65rem] transition-colors group-hover:text-amber',
+        isActive ? 'text-amber' : 'text-amber/60'
+      )}>
         {item.index}
       </span>
       <span>{item.label}</span>
-      <span className="absolute -bottom-1.5 left-0 h-px w-0 bg-amber transition-all duration-300 group-hover:w-full" />
+      <span className={cn(
+        'absolute -bottom-1.5 left-0 h-px bg-amber transition-all duration-300 group-hover:w-full',
+        isActive ? 'w-full' : 'w-0'
+      )} />
     </a>
   );
 }
@@ -52,10 +66,16 @@ function MobileNavAnchor({ item, onClose }: { item: typeof NAV_ITEMS[number]; on
   const navigate = useNavigate();
   const location = useLocation();
   const onHome = location.pathname === '/';
+  const isRoute = item.href.startsWith('/');
 
   const handleClick = (e: React.MouseEvent) => {
     onClose();
-    const hash = item.href.startsWith('#') ? item.href : '#';
+    if (isRoute) {
+      e.preventDefault();
+      setTimeout(() => navigate(item.href), 50);
+      return;
+    }
+    const hash = item.href;
     if (onHome) {
       e.preventDefault();
       setTimeout(() => {
@@ -75,7 +95,7 @@ function MobileNavAnchor({ item, onClose }: { item: typeof NAV_ITEMS[number]; on
 
   return (
     <a
-      href={onHome ? item.href : `/${item.href}`}
+      href={isRoute ? item.href : onHome ? item.href : `/${item.href}`}
       onClick={handleClick}
       className="group flex items-baseline gap-4 border-b border-parchment/8 py-4"
     >

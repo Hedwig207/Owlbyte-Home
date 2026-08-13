@@ -60,6 +60,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: '能力', href: '#capabilities', index: '02' },
   { label: '作品', href: '#products', index: '03' },
   { label: '群落', href: '#community', index: '04' },
+  { label: '🗒️ 更新', href: '/log', index: '05' },
 ];
 
 export const CAPABILITIES: Capability[] = [

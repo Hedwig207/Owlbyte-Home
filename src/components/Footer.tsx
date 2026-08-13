@@ -47,7 +47,13 @@ export default function Footer() {
           </div>
 
           {/* 导航列 */}
-          <FooterCol title="章节" items={NAV_ITEMS.map((n) => ({ label: n.label, href: n.href }))} />
+          <FooterCol
+            title="章节"
+            items={NAV_ITEMS.map((n) => ({
+              label: n.href === '/log' ? '更新日志' : n.label,
+              href: n.href,
+            }))}
+          />
           <FooterCol title="作品" items={PRODUCTS.map((p) => ({ label: p.name, href: p.href }))} />
           <FooterCol title="栖息地" items={SOCIALS.map((s) => ({ label: s.label, href: s.href }))} />
         </div>
