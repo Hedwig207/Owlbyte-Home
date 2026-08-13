@@ -42,13 +42,20 @@ function AppShell() {
   }, []);
 
   const restoreSession = async () => {
-    try {
-      const data = await api.get<User>('/api/auth/me', { auth: true });
-      useAuthStore.getState().setSession(data, '');
-    } catch {
-      useAuthStore.getState().clear();
-    }
-  };
+      try {
+        const data = await api.get<User>('/api/auth/me');
+        useAuthStore.getState().setSession(data, '');
+      } catch (e: any) {
+        const code = e?.code;
+        const status = e?.status;
+        if (code === 'UNAUTHORIZED' || status === 401) {
+          useAuthStore.getState().clear();
+        } else {
+          const s = useAuthStore.getState();
+          useAuthStore.setState({ ...s, hydrated: true });
+        }
+      }
+    };
 
   useEffect(() => {
     restoreSession();

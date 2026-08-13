@@ -2,7 +2,7 @@
 // Requires valid admin JWT for all routes under /api/admin/*
 // @ts-nocheck
 
-import { verifyJWT, errorResponse } from '../_shared/utils';
+import { verifyJWT, errorResponse, getBearerToken } from '../_shared/utils';
 
 export default async function handler(request: Request, env: any, ctx: any): Promise<Response> {
   const token = getBearerToken(request);
@@ -23,10 +23,4 @@ export default async function handler(request: Request, env: any, ctx: any): Pro
   request.headers.set('X-User-Role', payload.role);
 
   return ctx.next();
-}
-
-function getBearerToken(request: Request): string | null {
-  const auth = request.headers.get('Authorization');
-  if (!auth || !auth.startsWith('Bearer ')) return null;
-  return auth.slice(7);
 }
