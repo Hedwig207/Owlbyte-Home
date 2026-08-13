@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Search } from 'lucide-react';
 import { NAV_ITEMS } from '@/data/brand';
 import OwlLogo from './OwlLogo';
+import MoonPhaseGlyph from './MoonPhaseGlyph';
+import { useUiStore } from '@/stores/uiStore';
 import { cn } from '@/lib/utils';
 
 function NavAnchor({ item }: { item: typeof NAV_ITEMS[number] }) {
@@ -88,6 +90,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const setCommandOpen = useUiStore((s) => s.setCommandOpen);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -170,6 +173,22 @@ export default function Navbar() {
             </ul>
 
             <div className="flex items-center gap-3">
+              {/* 月相 */}
+              <span className="hidden items-center text-parchment/60 lg:inline-flex" title="今夜月相">
+                <MoonPhaseGlyph size={18} />
+              </span>
+
+              {/* ⌘K 命令面板触发 */}
+              <button
+                type="button"
+                onClick={() => setCommandOpen(true)}
+                className="hidden h-9 items-center gap-2 rounded-full border border-parchment/15 bg-ink-800/40 px-3 text-xs text-parchment/60 transition-all duration-300 hover:border-amber/40 hover:text-amber lg:inline-flex"
+                aria-label="打开命令面板"
+              >
+                <Search className="h-3.5 w-3.5" />
+                <span className="font-mono">⌘K</span>
+              </button>
+
               <a href="#community" onClick={onJoinClick} className="btn-primary hidden sm:inline-flex !py-2 !px-4 !text-[0.7rem]">
                 加入群落
               </a>

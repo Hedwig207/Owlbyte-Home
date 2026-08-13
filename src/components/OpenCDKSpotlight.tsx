@@ -1,5 +1,6 @@
 import { useReveal } from '@/hooks/useReveal';
-import { Rocket, Package, Sparkles, Shield, Github, Download, Terminal } from 'lucide-react';
+import { useGitHubRepo } from '@/hooks/useGitHubRepo';
+import { Rocket, Package, Sparkles, Shield, Github, Download, Terminal, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const FEATURES = [
@@ -50,6 +51,11 @@ const CODE_BLOCKS = [
 
 export default function OpenCDKSpotlight() {
   const { ref, visible } = useReveal<HTMLDivElement>({ threshold: 0.1 });
+  const { data: repoMeta } = useGitHubRepo<{ stars: number }>(
+    'OpenCDK',
+    '',
+    (raw) => ({ stars: raw.stargazers_count ?? 0 }),
+  );
 
   return (
     <section id="opencdk" className="relative py-32 md:py-40">
@@ -124,7 +130,17 @@ export default function OpenCDKSpotlight() {
               <div>
                 <p className="mono-label text-amber/80">REPOSITORY</p>
                 <h3 className="mt-2 display-serif text-2xl font-light text-parchment">GitHub · 源代码</h3>
-                <p className="mt-1 text-sm text-parchment/60">C / Batch / Makefile · ⭐ 6</p>
+                <p className="mt-1 text-sm text-parchment/60">
+                  C / Batch / Makefile
+                  {repoMeta && (
+                    <>
+                      {' · '}
+                      <Star className="inline h-3 w-3 text-amber" />
+                      {' '}
+                      <span className="font-mono text-amber">{repoMeta.stars}</span>
+                    </>
+                  )}
+                </p>
               </div>
               <Github className="h-6 w-6 text-amber transition-transform duration-300 group-hover:rotate-6" />
             </a>

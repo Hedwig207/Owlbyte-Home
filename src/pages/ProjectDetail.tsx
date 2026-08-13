@@ -1,10 +1,16 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
-import { ArrowLeft, ArrowUpRight, Github, Download, Wrench, Zap, Shield, Clock, Rocket, Lock, FileText, Bell, Eye, Moon, GitBranch, HardDrive, Users } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Github, Download, Wrench, Zap, Shield, Clock, Rocket, Lock, FileText, Bell, Eye, Moon, GitBranch, HardDrive, Users, AlertTriangle, Loader2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import OpenCDKSpotlight from '@/components/OpenCDKSpotlight';
+import RepoMetaBar from '@/components/RepoMetaBar';
+import RecentCommits from '@/components/RecentCommits';
+import ReleasesList from '@/components/ReleasesList';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
+import { useReadme } from '@/hooks/useReadme';
 import { PRODUCTS, type Product } from '@/data/brand';
+import { getRepoName } from '@/lib/github';
 import { useReveal } from '@/hooks/useReveal';
 import { cn } from '@/lib/utils';
 
@@ -187,6 +193,22 @@ export default function ProjectDetailPage() {
             </div>
           </div>
           <OpenCDKSpotlight />
+
+          {/* GitHub 真实数据区 */}
+          <div className="container mt-8 space-y-10 pb-24">
+            <RepoMetaBar repo="OpenCDK" accent="amber" />
+            <OpenCDKReadmeSection />
+            <div className="grid gap-8 lg:grid-cols-2">
+              <div>
+                <p className="mb-4 mono-label text-amber/70">§ 近期提交</p>
+                <RecentCommits repo="OpenCDK" accent="amber" limit={5} />
+              </div>
+              <div>
+                <p className="mb-4 mono-label text-moon/70">§ 发行版</p>
+                <ReleasesList repo="OpenCDK" accent="moon" limit={5} />
+              </div>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
@@ -380,3 +402,52 @@ export default function ProjectDetailPage() {
     </div>
   );
 }
+
+/** OpenCDK README 渲染区：拉取 GitHub README，转 markdown 渲染 */
+function OpenCDKReadmeSection() {
+  const { data, loading, error } = useReadme('OpenCDK');
+
+  if (loading) {
+    return (
+      <div>
+        <p className="mb-4 mono-label text-amber/70">§ README</p>
+        <div className="flex items-center gap-3 rounded-2xl border border-parchment/10 bg-ink-800/40 p-6 text-sm text-slate-mist">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          拉取 README…
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div>
+        <p className="mb-4 mono-label text-amber/70">§ README</p>
+        <div className="flex items-center gap-3 rounded-2xl border border-parchment/10 bg-ink-800/40 p-6 text-sm text-parchment/60">
+          <AlertTriangle className="h-4 w-4 text-amber/70" />
+          README 暂不可达
+          {data?.htmlUrl && (
+            <a
+              href={data.htmlUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto text-xs text-amber hover:text-amber/80"
+            >
+              直接查看 →
+            </a>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <p className="mb-4 mono-label text-amber/70">§ README</p>
+      <div className="rounded-2xl border border-parchment/10 bg-ink-900/40 p-6 md:p-8">
+        <MarkdownRenderer content={data.content} />
+      </div>
+    </div>
+  );
+}
+

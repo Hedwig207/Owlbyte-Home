@@ -1,29 +1,46 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useUiStore } from '@/stores/uiStore';
+import { useNightMode } from './useNightMode';
+import { getMoonPhase } from '@/lib/moonPhase';
 
-type Theme = 'light' | 'dark';
-
+/**
+ * 受控主题：
+ * - 夜班自动模式开启 + 当前在 22:00-06:00 → 强制 dark
+ * - 其他情况 → 尊重用户选择
+ * - 应用 class 到 documentElement，持久化到 localStorage
+ */
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme) {
-      return savedTheme;
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  const { themeMode, autoNight, setThemeMode } = useUiStore();
+  const { isNight } = useNightMode();
+  const moon = useMemo(() => getMoonPhase(), []);
+
+  // 实际生效的主题
+  const effective = autoNight && isNight ? 'dark' : themeMode;
 
   useEffect(() => {
     document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    document.documentElement.classList.add(effective);
+  }, [effective]);
 
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
+  // 持久化用户选择
+  useEffect(() => {
+    localStorage.setItem('owlbyte:theme', themeMode);
+  }, [themeMode]);
+
+  // 恢复
+  useEffect(() => {
+    const saved = localStorage.getItem('owlbyte:theme') as 'light' | 'dark' | null;
+    if (saved === 'light' || saved === 'dark') {
+      setThemeMode(saved);
+    }
+  }, [setThemeMode]);
 
   return {
-    theme,
-    toggleTheme,
-    isDark: theme === 'dark'
+    theme: effective,
+    isDark: effective === 'dark',
+    isNight,
+    moonPhase: moon,
+    toggleTheme: () => setThemeMode(themeMode === 'light' ? 'dark' : 'light'),
+    setTheme: setThemeMode,
   };
-} 
+}
