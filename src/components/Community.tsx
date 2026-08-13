@@ -2,14 +2,16 @@ import { useState, type FormEvent } from 'react';
 import { ArrowRight, Check, Loader2 } from 'lucide-react';
 import { useReveal } from '@/hooks/useReveal';
 import { useCountUp } from '@/hooks/useCountUp';
+import { useGitHubStats } from '@/hooks/useGitHubStats';
 import { SOCIALS, STATS } from '@/data/brand';
 import { cn } from '@/lib/utils';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
-function StatItem({ value, suffix, label, delay }: { value: number; suffix: string; label: string; delay: number }) {
+function StatItem({ value, suffix, label, delay, hint }: { value: number | null; suffix: string; label: string; delay: number; hint?: string }) {
   const { ref, visible } = useReveal<HTMLDivElement>({ threshold: 0.4 });
-  const count = useCountUp(value, { duration: 1800, startOn: visible });
+  // 等到真实值到达后再开始计数；value 为 null 时不启动
+  const count = useCountUp(value ?? 0, { duration: 1800, startOn: visible && value != null });
   return (
     <div
       ref={ref}
@@ -20,10 +22,19 @@ function StatItem({ value, suffix, label, delay }: { value: number; suffix: stri
       style={{ transitionDelay: `${delay}ms` }}
     >
       <p className="display-serif text-4xl font-light text-parchment md:text-5xl">
-        {count.toLocaleString()}
-        <span className="text-amber">{suffix}</span>
+        {value == null ? (
+          <Loader2 className="inline h-7 w-7 animate-spin text-amber/70" />
+        ) : (
+          <>
+            {count.toLocaleString()}
+            <span className="text-amber">{suffix}</span>
+          </>
+        )}
       </p>
       <p className="mt-1 mono-label text-slate-mist">{label}</p>
+      {hint && (
+        <p className="mt-1 font-mono text-[0.6rem] text-slate-fog/60">{hint}</p>
+      )}
     </div>
   );
 }
@@ -32,6 +43,7 @@ export default function Community() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<Status>('idle');
   const { ref: formRef, visible: formVisible } = useReveal<HTMLFormElement>({ threshold: 0.3 });
+  const { followers, loading: ghLoading, error: ghError } = useGitHubStats('Hedwig207');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -50,6 +62,14 @@ export default function Community() {
       setEmail('');
     }, 2400);
   };
+
+  // 社区观察者：GitHub followers 真实值；失败时回退到品牌默认值
+  const observersValue = followers != null ? followers : (ghError ? STATS[0].value : null);
+  const observersHint = followers != null
+    ? '实时 · @Hedwig207 GitHub'
+    : ghLoading
+      ? '正在连接 GitHub…'
+      : '数据暂不可达';
 
   return (
     <section id="community" className="relative py-32 md:py-48">
@@ -75,9 +95,25 @@ export default function Community() {
 
             {/* 统计 */}
             <div className="mt-12 grid grid-cols-3 gap-6">
-              {STATS.map((s, i) => (
-                <StatItem key={s.label} value={s.value} suffix={s.suffix} label={s.label} delay={i * 120} />
-              ))}
+              <StatItem
+                value={observersValue}
+                suffix={STATS[0].suffix}
+                label={STATS[0].label}
+                delay={0}
+                hint={observersHint}
+              />
+              <StatItem
+                value={STATS[1].value}
+                suffix={STATS[1].suffix}
+                label={STATS[1].label}
+                delay={120}
+              />
+              <StatItem
+                value={STATS[2].value}
+                suffix={STATS[2].suffix}
+                label={STATS[2].label}
+                delay={240}
+              />
             </div>
 
             {/* 社交链接 */}
