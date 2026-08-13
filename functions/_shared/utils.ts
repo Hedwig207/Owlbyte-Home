@@ -8,6 +8,8 @@ export interface Env {
   USE_MOCK?: string;
 }
 
+export type CFEnv = Env;
+
 export interface Ctx {
   next: () => Promise<Response>;
   waitUntil?: (promise: Promise<any>) => void;

@@ -1,50 +1,46 @@
-import { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 
-/**
- * 需登录才能访问的路由守卫
- * 未登录跳 /login?redirect=<原路径>
- */
+function AuthSkeleton() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber/30 border-t-amber" />
+        <span className="mono-label text-slate-fog">正在恢复会话…</span>
+      </div>
+    </div>
+  );
+}
+
+export function AuthGuard({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
+
 export function RequireAuth({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, hydrated } = useAuthStore();
   const location = useLocation();
 
-  // 会话未恢复完成时显示占位（防止闪烁）
   if (!hydrated) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <span className="mono-label text-slate-fog">正在恢复会话…</span>
-      </div>
-    );
+    return <AuthSkeleton />;
   }
 
   if (!isAuthenticated) {
-    const redirect = encodeURIComponent(location.pathname + location.search);
-    return <Navigate to={`/login?redirect=${redirect}`} replace />;
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   return <>{children}</>;
 }
 
-/**
- * 需管理员权限的路由守卫
- */
 export function RequireAdmin({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isAdmin, hydrated } = useAuthStore();
   const location = useLocation();
 
   if (!hydrated) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <span className="mono-label text-slate-fog">正在恢复会话…</span>
-      </div>
-    );
+    return <AuthSkeleton />;
   }
 
   if (!isAuthenticated) {
-    const redirect = encodeURIComponent(location.pathname + location.search);
-    return <Navigate to={`/login?redirect=${redirect}`} replace />;
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   if (!isAdmin) {
@@ -58,3 +54,21 @@ export function RequireAdmin({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
+
+export function GuestOnly({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, hydrated } = useAuthStore();
+  const location = useLocation();
+
+  if (!hydrated) {
+    return <AuthSkeleton />;
+  }
+
+  if (isAuthenticated) {
+    const from = (location.state as any)?.from || '/';
+    return <Navigate to={from} replace />;
+  }
+
+  return <>{children}</>;
+}
+
+export default AuthGuard;

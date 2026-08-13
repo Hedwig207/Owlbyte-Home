@@ -11,11 +11,14 @@ import {
   FileJson,
   Database,
   Users,
+  BarChart3,
+  Shield,
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useErrorLogStore, type ErrorLog } from '@/stores/errorLogStore';
 import { useUiStore } from '@/stores/uiStore';
+import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/hooks/useTheme';
 import { CACHE_PREFIX } from '@/lib/consts';
 
@@ -239,6 +242,7 @@ function LogItem({ log }: { log: ErrorLog }) {
 
 function SettingsPanel() {
   const { themeMode, autoNight, setThemeMode, setAutoNight } = useUiStore();
+  const { isAdmin, isAuthenticated } = useAuthStore();
   const { isDark } = useTheme();
 
   const clearGithubCache = () => {
@@ -354,6 +358,31 @@ function SettingsPanel() {
           </button>
         </div>
       </section>
+
+      {isAuthenticated && isAdmin && (
+        <section>
+          <h2 className="mono-label mb-4 text-amber/70">管理员工具</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Link
+              to="/admin/visitors"
+              className="flex items-center gap-3 rounded-2xl border border-amber/20 bg-amber/5 p-4 text-left transition-all hover:border-amber/40 hover:bg-amber/10"
+            >
+              <BarChart3 className="h-5 w-5 text-amber" />
+              <div>
+                <p className="text-sm text-parchment">访客统计面板</p>
+                <p className="text-xs text-parchment/50">在线用户、访问统计</p>
+              </div>
+            </Link>
+            <div className="flex items-center gap-3 rounded-2xl border border-parchment/10 bg-ink-800/40 p-4">
+              <Shield className="h-5 w-5 text-moon" />
+              <div>
+                <p className="text-sm text-parchment">管理员权限</p>
+                <p className="text-xs text-parchment/50">当前账号拥有管理权限</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section>
         <h2 className="mono-label mb-4 text-amber/70">版本信息</h2>
