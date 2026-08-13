@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Search } from 'lucide-react';
+import { Menu, X, Search, Settings, LogIn } from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
+import UserMenu from './UserMenu';
 import { NAV_ITEMS } from '@/data/brand';
 import OwlLogo from './OwlLogo';
 import MoonPhaseGlyph from './MoonPhaseGlyph';
@@ -91,6 +93,7 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const setCommandOpen = useUiStore((s) => s.setCommandOpen);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -189,6 +192,31 @@ export default function Navbar() {
                 <span className="font-mono">⌘K</span>
               </button>
 
+              {/* 设置 */}
+              <button
+                type="button"
+                onClick={() => navigate('/settings')}
+                className="hidden h-9 w-9 items-center justify-center rounded-full border border-parchment/15 bg-ink-800/40 text-parchment/60 transition-all duration-300 hover:border-amber/40 hover:text-amber lg:inline-flex"
+                aria-label="设置"
+                title="设置"
+              >
+                <Settings className="h-4 w-4" />
+              </button>
+
+              {/* 登录 / 用户菜单 */}
+              {isAuthenticated ? (
+                <UserMenu />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => navigate('/login')}
+                  className="hidden h-9 items-center gap-1.5 rounded-full border border-parchment/15 bg-ink-800/40 px-3 text-xs text-parchment/70 transition-all duration-300 hover:border-amber/40 hover:text-amber lg:inline-flex"
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  <span>登录</span>
+                </button>
+              )}
+
               <a href="#community" onClick={onJoinClick} className="btn-primary hidden sm:inline-flex !py-2 !px-4 !text-[0.7rem]">
                 加入群落
               </a>
@@ -252,6 +280,46 @@ export default function Navbar() {
           >
             加入群落
           </a>
+
+          {/* 移动端认证入口 */}
+          <div className="mt-6 border-t border-parchment/8 pt-6">
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                navigate('/settings');
+              }}
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-parchment/70 transition-colors hover:bg-parchment/5 hover:text-parchment"
+            >
+              <Settings className="h-4 w-4" />
+              设置
+            </button>
+            {isAuthenticated ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  navigate('/profile');
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-parchment/70 transition-colors hover:bg-parchment/5 hover:text-parchment"
+              >
+                个人中心
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  navigate('/login');
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-parchment/70 transition-colors hover:bg-parchment/5 hover:text-parchment"
+              >
+                <LogIn className="h-4 w-4" />
+                登录
+              </button>
+            )}
+          </div>
+
           <p className="mono-label mt-10 text-slate-fog">
             Night Shift · v0.1.0
           </p>

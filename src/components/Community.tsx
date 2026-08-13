@@ -5,6 +5,8 @@ import { useCountUp } from '@/hooks/useCountUp';
 import { useGitHubStats } from '@/hooks/useGitHubStats';
 import { SOCIALS, STATS } from '@/data/brand';
 import { cn } from '@/lib/utils';
+import { api, ApiRequestError } from '@/lib/api';
+import { useErrorLog } from '@/lib/browserLog';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
@@ -53,14 +55,35 @@ export default function Community() {
       setStatus('error');
       return;
     }
-    setStatus('loading');
-    // 模拟提交
-    await new Promise((r) => setTimeout(r, 900));
-    setStatus('success');
-    setTimeout(() => {
-      setStatus('idle');
-      setEmail('');
-    }, 2400);
+    try {
+      setStatus('loading');
+      const res = await api.post<{ message: string; status: string }>(
+        '/api/subscribers',
+        { email, source: 'home_form' }
+      );
+      setStatus('success');
+      setTimeout(() => {
+        setStatus('idle');
+        setEmail('');
+      }, 2400);
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        if (err.status === 409 || err.code === 'ALREADY_SUBSCRIBED') {
+          setStatus('success');
+          setTimeout(() => {
+            setStatus('idle');
+            setEmail('');
+          }, 2400);
+        } else if (err.status === 429) {
+          alert('操作过于频繁，请稍后再试');
+        } else {
+          useErrorLog('订阅失败', err.message, 'Community.handleSubmit');
+          setStatus('error');
+        }
+      } else {
+        setStatus('error');
+      }
+    }
   };
 
   // 社区观察者：GitHub followers 真实值；失败时回退到品牌默认值
