@@ -75,7 +75,8 @@ function TimelineNode({ status }: { status: ChangelogEntry['status'] }) {
 }
 
 function ChangelogCard({ entry }: { entry: ChangelogEntry }) {
-  const grouped = entry.changes.reduce<Record<string, typeof entry.changes>>((acc, c) => {
+  const changes = entry.changes || [];
+  const grouped = changes.reduce<Record<string, typeof changes>>((acc, c) => {
     (acc[c.type] ||= []).push(c);
     return acc;
   }, {});
@@ -161,7 +162,7 @@ function ChangelogCard({ entry }: { entry: ChangelogEntry }) {
           )}
         </div>
 
-        {(entry.author || entry.links) && (
+        {(entry.author || (entry.links && entry.links.length > 0)) && (
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-parchment/8 pt-5">
             <p className="mono-label text-slate-fog">
               — {entry.author ?? 'Hedwig'}
@@ -221,7 +222,8 @@ function formatUa(ua?: string): string {
   return '桌面端';
 }
 
-function timeAgo(iso: string): string {
+function timeAgo(iso?: string): string {
+  if (!iso) return '未知';
   const diff = Date.now() - new Date(iso).getTime();
   const min = Math.floor(diff / 60000);
   if (min < 1) return '刚刚';
@@ -232,8 +234,53 @@ function timeAgo(iso: string): string {
   return `${day} 天前`;
 }
 
-function ViewStatsBar({ stats }: { stats: LogViewStats | null }) {
-  if (!stats) return null;
+function ViewStatsBar({ stats, loading }: { stats: LogViewStats | null; loading: boolean }) {
+  if (loading && !stats) {
+    return (
+      <div className="mb-8 rounded-2xl border border-parchment/10 bg-ink-800/30 p-5 backdrop-blur-sm animate-pulse">
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-2">
+              <Eye className="h-4 w-4 text-parchment/20" />
+              <span className="h-5 w-10 rounded bg-parchment/10" />
+              <span className="mono-label text-parchment/20">加载中</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="mb-8 rounded-2xl border border-parchment/10 bg-ink-800/30 p-5 backdrop-blur-sm">
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+          <div className="flex items-center gap-2">
+            <Eye className="h-4 w-4 text-parchment/30" />
+            <span className="font-mono text-sm text-parchment/30">--</span>
+            <span className="mono-label text-slate-fog">总浏览</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-parchment/30">--</span>
+            <span className="mono-label text-slate-fog">今日</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-parchment/30">--</span>
+            <span className="mono-label text-slate-fog">本周</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-parchment/20" />
+            <span className="font-mono text-xs text-parchment/30">--</span>
+            <span className="mono-label text-slate-fog">独立访客</span>
+          </div>
+        </div>
+        <p className="mono-label mt-3 text-parchment/30 text-[0.65rem]">
+          访问统计暂时不可用 · 本次访问已被本地记录
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-8 rounded-2xl border border-parchment/10 bg-ink-800/30 p-5 backdrop-blur-sm">
       <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
@@ -257,7 +304,7 @@ function ViewStatsBar({ stats }: { stats: LogViewStats | null }) {
         </div>
       </div>
 
-      {stats.recent.length > 0 && (
+      {stats.recent && stats.recent.length > 0 && (
         <div className="mt-4 border-t border-parchment/8 pt-4">
           <p className="mono-label mb-2 text-parchment/40">近期访问</p>
           <div className="flex flex-wrap gap-2">
@@ -265,7 +312,7 @@ function ViewStatsBar({ stats }: { stats: LogViewStats | null }) {
               <span
                 key={i}
                 className="inline-flex items-center gap-1.5 rounded-full border border-parchment/8 bg-ink-900/50 px-2.5 py-1 font-mono text-[0.65rem] text-parchment/50"
-                title={`${v.sessionId.slice(0, 8)}… · ${v.referrer || '直接访问'}`}
+                title={`${(v.sessionId || '').slice(0, 8)}… · ${v.referrer || '直接访问'}`}
               >
                 <span className="h-1 w-1 rounded-full bg-amber/60" />
                 {formatUa(v.ua)}
@@ -282,28 +329,28 @@ function ViewStatsBar({ stats }: { stats: LogViewStats | null }) {
 
 export default function DevLog() {
   const latest = getLatestVersion();
-  const showBanner = latest.status !== 'released';
+  const showBanner = latest?.status !== 'released';
   const [viewStats, setViewStats] = useState<LogViewStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
 
-    // 记录本次访问
     const sessionId = getVisitorSession();
     api.post('/api/log-views', {
       sessionId,
       path: '/log',
       referrer: document.referrer || undefined,
     }).catch(() => {
-      // 静默失败，不影响页面
+      // 静默失败
     });
 
-    // 拉取访问统计
     api.get<LogViewStats>('/api/log-views')
       .then(setViewStats)
       .catch(() => {
-        // 静默失败
-      });
+        // 静默失败，显示降级 UI
+      })
+      .finally(() => setStatsLoading(false));
   }, []);
 
   return (
@@ -336,18 +383,18 @@ export default function DevLog() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 md:max-w-xs md:justify-end">
-                  <StatChip label="总版本" value={CHANGELOG_STATS.totalVersions} accent="amber" />
-                  <StatChip label="已发布" value={CHANGELOG_STATS.releasedCount} accent="moon" />
-                  <StatChip label="进行中" value={CHANGELOG_STATS.inProgressCount} accent="amber" />
-                  <StatChip label="总改动" value={CHANGELOG_STATS.totalChanges} />
-                  <StatChip label="feat" value={CHANGELOG_STATS.totalFeats} accent="amber" />
-                  <StatChip label="fix" value={CHANGELOG_STATS.totalFixes} accent="moon" />
+                  <StatChip label="总版本" value={CHANGELOG_STATS?.totalVersions ?? 0} accent="amber" />
+                  <StatChip label="已发布" value={CHANGELOG_STATS?.releasedCount ?? 0} accent="moon" />
+                  <StatChip label="进行中" value={CHANGELOG_STATS?.inProgressCount ?? 0} accent="amber" />
+                  <StatChip label="总改动" value={CHANGELOG_STATS?.totalChanges ?? 0} />
+                  <StatChip label="feat" value={CHANGELOG_STATS?.totalFeats ?? 0} accent="amber" />
+                  <StatChip label="fix" value={CHANGELOG_STATS?.totalFixes ?? 0} accent="moon" />
                 </div>
               </div>
             </div>
           </section>
 
-          <ViewStatsBar stats={viewStats} />
+          <ViewStatsBar stats={viewStats} loading={statsLoading} />
 
           {showBanner && (
             <section className="mb-12">
@@ -362,13 +409,13 @@ export default function DevLog() {
                     <div>
                       <p className="mono-label text-amber/70">正在进行</p>
                       <p className="display-serif text-lg text-parchment md:text-xl">
-                        {latest.version} · {latest.title}
+                        {latest?.version} · {latest?.title}
                       </p>
                     </div>
                   </div>
-                  {latest.codename && (
+                  {latest?.codename && (
                     <span className="mono-label self-start rounded-md border border-amber/30 bg-amber/10 px-2.5 py-1 text-amber/90 md:self-auto">
-                      {latest.codename}
+                      {latest?.codename}
                     </span>
                   )}
                 </div>
@@ -377,7 +424,7 @@ export default function DevLog() {
           )}
 
           <section className="relative">
-            {CHANGELOG.map((entry) => (
+            {(CHANGELOG || []).map((entry) => (
               <ChangelogCard key={entry.version} entry={entry} />
             ))}
 
