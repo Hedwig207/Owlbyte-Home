@@ -6,14 +6,14 @@ import Footer from '@/components/Footer';
 import { CHANGELOG, CHANGELOG_STATS, getLatestVersion, type ChangelogEntry } from '@/data/changelog';
 import { cn } from '@/lib/utils';
 
-const TYPE_ICON: Record<ChangelogEntry['changes'][number]['type'], string> = {
-  feat: '✨',
-  fix: '🐛',
-  refactor: '♻️',
-  perf: '⚡',
-  docs: '📝',
-  chore: '📦',
-  design: '🎨',
+const TYPE_LABEL: Record<ChangelogEntry['changes'][number]['type'], string> = {
+  feat: 'feat',
+  fix: 'fix',
+  refactor: 'refactor',
+  perf: 'perf',
+  docs: 'docs',
+  chore: 'chore',
+  design: 'design',
 };
 
 const STATUS_STYLE: Record<ChangelogEntry['status'], { label: string; dot: string; badge: string; node: string }> = {
@@ -109,7 +109,7 @@ function ChangelogCard({ entry }: { entry: ChangelogEntry }) {
 
         {entry.highlights && entry.highlights.length > 0 && (
           <div className="mt-5 rounded-xl border border-amber/20 bg-amber/[0.04] p-4">
-            <p className="mono-label mb-2 text-amber/80">🌟 核心亮点</p>
+            <p className="mono-label mb-2 text-amber/80">核心亮点</p>
             <ul className="space-y-1.5">
               {entry.highlights.map((h, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-parchment/85">
@@ -126,8 +126,9 @@ function ChangelogCard({ entry }: { entry: ChangelogEntry }) {
             grouped[t] ? (
               <div key={t}>
                 <p className="mono-label mb-2.5 flex items-center gap-1.5 text-parchment/50">
-                  <span>{TYPE_ICON[t]}</span>
-                  <span className="uppercase">{t}</span>
+                  <span className="rounded bg-ink-800/60 px-1.5 py-0.5 text-parchment/70">
+                    [{TYPE_LABEL[t]}]
+                  </span>
                   <span className="text-parchment/20">· {grouped[t].length}</span>
                 </p>
                 <ul className="space-y-3">

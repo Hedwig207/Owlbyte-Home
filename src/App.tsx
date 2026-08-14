@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from '@/pages/Home';
 import ProjectsPage from '@/pages/Projects';
@@ -26,7 +26,8 @@ import ResetPasswordPage from '@/pages/ResetPassword';
 import ProfilePage from '@/pages/Profile';
 import VisitorsPage from '@/pages/admin/Visitors';
 import SettingsDebugPage from '@/pages/SettingsDebug';
-import DevLog from '@/pages/DevLog';
+
+const DevLog = lazy(() => import('@/pages/DevLog'));
 
 function CursorGlow() {
   useCursorGlow();
@@ -70,7 +71,7 @@ function AppShell() {
         <Route path="/project/:id" element={<ProjectDetailPage />} />
         <Route path="/watchman" element={<WatchmenPage />} />
         <Route path="/watchman/hedwig" element={<WatchmanHedwigPage />} />
-        <Route path="/log" element={<DevLog />} />
+        <Route path="/log" element={<Suspense fallback={<div className="flex min-h-screen items-center justify-center text-parchment/50">加载中…</div>}><DevLog /></Suspense>} />
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
