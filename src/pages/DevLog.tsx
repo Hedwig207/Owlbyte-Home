@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ScrollText, ArrowLeft, ExternalLink } from 'lucide-react';
+import { ScrollText, ArrowLeft, ExternalLink, Eye, Users } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { CHANGELOG, CHANGELOG_STATS, getLatestVersion, type ChangelogEntry } from '@/data/changelog';
+import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 const TYPE_LABEL: Record<ChangelogEntry['changes'][number]['type'], string> = {
@@ -188,12 +189,121 @@ function ChangelogCard({ entry }: { entry: ChangelogEntry }) {
   );
 }
 
+interface LogViewStats {
+  total: number;
+  today: number;
+  thisWeek: number;
+  uniqueVisitors: number;
+  recent: Array<{ timestamp: string; sessionId: string; referrer?: string; ua?: string }>;
+}
+
+const SESSION_KEY = 'owlbyte:visitor_session';
+
+function getVisitorSession(): string {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      if (data?.sessionId) return data.sessionId;
+    }
+  } catch {
+    // ignore
+  }
+  return 'anonymous';
+}
+
+function formatUa(ua?: string): string {
+  if (!ua) return '未知';
+  if (/mobile|android|iphone/i.test(ua)) return '移动端';
+  if (/mac/i.test(ua)) return 'macOS';
+  if (/windows/i.test(ua)) return 'Windows';
+  if (/linux/i.test(ua)) return 'Linux';
+  return '桌面端';
+}
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return '刚刚';
+  if (min < 60) return `${min} 分钟前`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} 小时前`;
+  const day = Math.floor(hr / 24);
+  return `${day} 天前`;
+}
+
+function ViewStatsBar({ stats }: { stats: LogViewStats | null }) {
+  if (!stats) return null;
+  return (
+    <div className="mb-8 rounded-2xl border border-parchment/10 bg-ink-800/30 p-5 backdrop-blur-sm">
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+        <div className="flex items-center gap-2">
+          <Eye className="h-4 w-4 text-amber" />
+          <span className="font-mono text-lg text-parchment">{stats.total}</span>
+          <span className="mono-label text-slate-fog">总浏览</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-sm text-moon">{stats.today}</span>
+          <span className="mono-label text-slate-fog">今日</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-sm text-moon">{stats.thisWeek}</span>
+          <span className="mono-label text-slate-fog">本周</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-amber/70" />
+          <span className="font-mono text-sm text-parchment/80">{stats.uniqueVisitors}</span>
+          <span className="mono-label text-slate-fog">独立访客</span>
+        </div>
+      </div>
+
+      {stats.recent.length > 0 && (
+        <div className="mt-4 border-t border-parchment/8 pt-4">
+          <p className="mono-label mb-2 text-parchment/40">近期访问</p>
+          <div className="flex flex-wrap gap-2">
+            {stats.recent.slice(0, 8).map((v, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1.5 rounded-full border border-parchment/8 bg-ink-900/50 px-2.5 py-1 font-mono text-[0.65rem] text-parchment/50"
+                title={`${v.sessionId.slice(0, 8)}… · ${v.referrer || '直接访问'}`}
+              >
+                <span className="h-1 w-1 rounded-full bg-amber/60" />
+                {formatUa(v.ua)}
+                <span className="text-parchment/30">·</span>
+                {timeAgo(v.timestamp)}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DevLog() {
   const latest = getLatestVersion();
   const showBanner = latest.status !== 'released';
+  const [viewStats, setViewStats] = useState<LogViewStats | null>(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
+
+    // 记录本次访问
+    const sessionId = getVisitorSession();
+    api.post('/api/log-views', {
+      sessionId,
+      path: '/log',
+      referrer: document.referrer || undefined,
+    }).catch(() => {
+      // 静默失败，不影响页面
+    });
+
+    // 拉取访问统计
+    api.get<LogViewStats>('/api/log-views')
+      .then(setViewStats)
+      .catch(() => {
+        // 静默失败
+      });
   }, []);
 
   return (
@@ -236,6 +346,8 @@ export default function DevLog() {
               </div>
             </div>
           </section>
+
+          <ViewStatsBar stats={viewStats} />
 
           {showBanner && (
             <section className="mb-12">

@@ -23,6 +23,8 @@ type LogRow = { id: string; level: string; message: string; stack?: string; url?
 const LOGS: LogRow[] = [];
 type Visitor = { sessionId: string; path: string; referrer?: string; lastPingAt: number; ua?: string };
 const VISITORS: Map<string, Visitor> = new Map();
+type LogView = { id: string; sessionId: string; path: string; referrer?: string; ua?: string; timestamp: string };
+const LOG_VIEWS: LogView[] = [];
 
 function hashPasswordSync(pwd: string): string {
   const salt = `salt_${Date.now()}_`;
@@ -272,6 +274,40 @@ export default function mockApiPlugin(): Plugin {
           if (pathname === 'logs/list' && req.method === 'GET') {
             if (!requireAdmin()) return;
             return send(json({ total: LOGS.length, rows: LOGS.slice(0, 100) }));
+          }
+
+          if (pathname === 'log-views' && req.method === 'POST') {
+            const { sessionId, path, referrer } = body as any;
+            const ua = req.headers['user-agent'] as string | undefined;
+            const sid = sessionId || 'anonymous';
+            LOG_VIEWS.push({
+              id: crypto.randomUUID(),
+              sessionId: sid,
+              path: path || '/log',
+              referrer,
+              ua,
+              timestamp: new Date().toISOString(),
+            });
+            while (LOG_VIEWS.length > 10000) LOG_VIEWS.shift();
+            return send(json({ ok: true }));
+          }
+
+          if (pathname === 'log-views' && req.method === 'GET') {
+            const now = Date.now();
+            const dayAgo = new Date(now - 24 * 3600 * 1000).toISOString();
+            const weekAgo = new Date(now - 7 * 24 * 3600 * 1000).toISOString();
+            return send(json({
+              total: LOG_VIEWS.length,
+              today: LOG_VIEWS.filter(v => v.timestamp > dayAgo).length,
+              thisWeek: LOG_VIEWS.filter(v => v.timestamp > weekAgo).length,
+              uniqueVisitors: new Set(LOG_VIEWS.map(v => v.sessionId)).size,
+              recent: LOG_VIEWS.slice(-20).reverse().map(v => ({
+                timestamp: v.timestamp,
+                sessionId: v.sessionId,
+                referrer: v.referrer,
+                ua: v.ua,
+              })),
+            }));
           }
 
           next();

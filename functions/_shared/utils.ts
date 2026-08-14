@@ -211,6 +211,7 @@ const mockSubscribers = new Map<string, { email: string; source?: string; unsub_
 const mockEmailVerifications = new Map<string, { email: string; token: string; createdAt: string }>();
 const mockVisitors = new Map<string, { sessionId: string; path: string; referrer?: string; lastPingAt: string }>();
 const mockLogs: Array<{ id: string; level: string; message: string; stack?: string; url?: string; timestamp: string }> = [];
+const mockLogViews: Array<{ id: string; sessionId: string; path: string; referrer?: string; ua?: string; timestamp: string }> = [];
 
 // ========== D1 / Mock Abstraction ==========
 
@@ -526,6 +527,86 @@ export async function dbListLogs(env: Env, limit = 50): Promise<any[]> {
     }));
   } catch {
     return [];
+  }
+}
+
+// ========== Log Views (更新日志访问记录) ==========
+
+export async function dbRecordLogView(env: Env, sessionId: string, path: string, referrer?: string, ua?: string): Promise<void> {
+  const now = new Date().toISOString();
+  if (isMockMode(env)) {
+    mockLogViews.push({
+      id: crypto.randomUUID(),
+      sessionId,
+      path,
+      referrer: referrer || undefined,
+      ua: ua || undefined,
+      timestamp: now,
+    });
+    // 保留最近 10000 条
+    if (mockLogViews.length > 10000) mockLogViews.shift();
+    return;
+  }
+  try {
+    await env.DATABASE.prepare(
+      'INSERT INTO log_views (id, session_id, path, referrer, ua, timestamp) VALUES (?, ?, ?, ?, ?, ?)'
+    ).bind(crypto.randomUUID(), sessionId, path, referrer || null, ua || null, now).run();
+  } catch {
+    // ignore
+  }
+}
+
+export async function dbGetLogViewStats(env: Env): Promise<{
+  total: number;
+  today: number;
+  thisWeek: number;
+  uniqueVisitors: number;
+  recent: Array<{ timestamp: string; sessionId: string; referrer?: string; ua?: string }>;
+}> {
+  if (isMockMode(env)) {
+    const views = mockLogViews;
+    const now = Date.now();
+    const dayAgo = new Date(now - 24 * 3600 * 1000).toISOString();
+    const weekAgo = new Date(now - 7 * 24 * 3600 * 1000).toISOString();
+    return {
+      total: views.length,
+      today: views.filter(v => v.timestamp > dayAgo).length,
+      thisWeek: views.filter(v => v.timestamp > weekAgo).length,
+      uniqueVisitors: new Set(views.map(v => v.sessionId)).size,
+      recent: views.slice(-20).reverse().map(v => ({
+        timestamp: v.timestamp,
+        sessionId: v.sessionId,
+        referrer: v.referrer,
+        ua: v.ua,
+      })),
+    };
+  }
+  try {
+    const total = await env.DATABASE.prepare('SELECT COUNT(*) as cnt FROM log_views').all();
+    const today = await env.DATABASE.prepare(
+      'SELECT COUNT(*) as cnt FROM log_views WHERE timestamp > ?'
+    ).bind(new Date(Date.now() - 24 * 3600 * 1000).toISOString()).all();
+    const week = await env.DATABASE.prepare(
+      'SELECT COUNT(*) as cnt FROM log_views WHERE timestamp > ?'
+    ).bind(new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()).all();
+    const unique = await env.DATABASE.prepare('SELECT COUNT(DISTINCT session_id) as cnt FROM log_views').all();
+    const recentResult = await env.DATABASE.prepare(
+      'SELECT timestamp, session_id, referrer, ua FROM log_views ORDER BY timestamp DESC LIMIT 20'
+    ).all();
+    return {
+      total: total.results?.[0]?.cnt || 0,
+      today: today.results?.[0]?.cnt || 0,
+      thisWeek: week.results?.[0]?.cnt || 0,
+      uniqueVisitors: unique.results?.[0]?.cnt || 0,
+      recent: (recentResult.results || []).map((r: any) => ({
+        timestamp: r.timestamp,
+        sessionId: r.session_id,
+        referrer: r.referrer || undefined,
+        ua: r.ua || undefined,
+      })),
+    };
+  } catch {
+    return { total: 0, today: 0, thisWeek: 0, uniqueVisitors: 0, recent: [] };
   }
 }
 

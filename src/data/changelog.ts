@@ -17,6 +17,60 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: 'v0.1.3-nightly',
+    date: '2026-08-14',
+    title: '更新日志访问记录 + 页面去 emoji',
+    codename: 'Build 0.1.3 · 观察记录',
+    status: 'in-progress',
+    highlights: [
+      '每次访问 /log 都会被记录，页面实时展示浏览统计',
+      '移除 DevLog 所有 emoji，改用 [feat] [fix] 纯文本标签',
+      'DevLog 改为 React.lazy 懒加载，不影响主页 bundle',
+      '移除 Navbar 顶部「更新」入口，主页保持四大区块',
+    ],
+    changes: [
+      {
+        type: 'feat',
+        scope: 'API',
+        description: '新增 /api/log-views 端点：POST 记录访问 + GET 获取统计',
+      },
+      {
+        type: 'feat',
+        scope: 'Pages',
+        description: 'DevLog 页加载时自动记录本次访问，并展示总浏览/今日/本周/独立访客',
+        details: ['近期访问展示设备类型 + 相对时间', '复用 visitor session ID 区分独立访客'],
+      },
+      {
+        type: 'feat',
+        scope: 'Backend',
+        description: 'utils.ts 新增 dbRecordLogView + dbGetLogViewStats（Mock 模式 + D1 双支持）',
+      },
+      {
+        type: 'fix',
+        scope: 'UI',
+        description: '移除 DevLog 所有 emoji（✨🐛♻️🌟等），改用 [feat] [fix] 纯文本标签',
+      },
+      {
+        type: 'fix',
+        scope: 'UI',
+        description: '移除 Navbar 顶部「🗒️ 更新」入口，主页恢复观察/能力/作品/群落四大区块',
+      },
+      {
+        type: 'fix',
+        scope: 'Build',
+        description: '修复 merge 冲突标记残留导致 Cloudflare 构建失败（TS1185）',
+      },
+      {
+        type: 'perf',
+        scope: 'Build',
+        description: 'DevLog 改为 React.lazy + Suspense 懒加载，主页不再加载更新日志代码',
+      },
+    ],
+    links: [
+      { label: '查看当前部署', href: 'https://owlbyte-home.pages.dev/log' },
+    ],
+  },
+  {
     version: 'v0.1.2-nightly',
     date: '2026-08-13',
     title: '修复部署环境可用性 + 更新日志页上线',
