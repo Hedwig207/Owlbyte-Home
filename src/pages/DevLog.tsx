@@ -199,6 +199,7 @@ interface LogViewStats {
 }
 
 const SESSION_KEY = 'owlbyte:visitor_session';
+const VISIT_KEY = 'owlbyte:log_visits';
 
 function getVisitorSession(): string {
   try {
@@ -207,10 +208,49 @@ function getVisitorSession(): string {
       const data = JSON.parse(raw);
       if (data?.sessionId) return data.sessionId;
     }
+    const newId = crypto.randomUUID?.() || String(Date.now()) + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ sessionId: newId, createdAt: new Date().toISOString() }));
+    return newId;
+  } catch {
+    return 'anonymous';
+  }
+}
+
+function recordLocalVisit(sessionId: string): string[] {
+  try {
+    const visits: string[] = JSON.parse(localStorage.getItem(VISIT_KEY) || '[]');
+    visits.push(new Date().toISOString());
+    if (visits.length > 5000) visits.shift();
+    localStorage.setItem(VISIT_KEY, JSON.stringify(visits));
   } catch {
     // ignore
   }
-  return 'anonymous';
+  return JSON.parse(localStorage.getItem(VISIT_KEY) || '[]');
+}
+
+function computeLocalStats(sessionId: string): LogViewStats {
+  let visits: string[] = [];
+  try {
+    visits = JSON.parse(localStorage.getItem(VISIT_KEY) || '[]');
+  } catch {
+    // ignore
+  }
+  const now = Date.now();
+  const dayAgo = new Date(now - 24 * 3600 * 1000).toISOString();
+  const weekAgo = new Date(now - 7 * 24 * 3600 * 1000).toISOString();
+  const ua = navigator.userAgent;
+  return {
+    total: visits.length,
+    today: visits.filter(v => v > dayAgo).length,
+    thisWeek: visits.filter(v => v > weekAgo).length,
+    uniqueVisitors: 1,
+    recent: visits.slice(-8).reverse().map(t => ({
+      timestamp: t,
+      sessionId,
+      referrer: document.referrer || undefined,
+      ua,
+    })),
+  };
 }
 
 function formatUa(ua?: string): string {
@@ -276,8 +316,7 @@ function ViewStatsBar({ stats, loading }: { stats: LogViewStats | null; loading:
         </div>
         <p className="mono-label mt-3 text-parchment/30 text-[0.65rem]">
           访问统计暂时不可用 · 本次访问已被本地记录
-        </p>
-      </div>
+        </p>      </div>
     );
   }
 
@@ -337,6 +376,8 @@ export default function DevLog() {
     window.scrollTo({ top: 0, behavior: 'auto' });
 
     const sessionId = getVisitorSession();
+    recordLocalVisit(sessionId);
+
     api.post('/api/log-views', {
       sessionId,
       path: '/log',
@@ -348,7 +389,7 @@ export default function DevLog() {
     api.get<LogViewStats>('/api/log-views')
       .then(setViewStats)
       .catch(() => {
-        // 静默失败，显示降级 UI
+        setViewStats(computeLocalStats(sessionId));
       })
       .finally(() => setStatsLoading(false));
   }, []);
