@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Command } from 'cmdk';
 import {
   Search, Github, Mail, MessageCircle, FolderGit2, User, Home,
-  Moon, Sun, LayoutGrid, ScrollText, ExternalLink,
+  Moon, Sun, LayoutGrid, ScrollText, ExternalLink, Bug,
 } from 'lucide-react';
 import { useUiStore } from '@/stores/uiStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -61,9 +61,13 @@ export default function CommandPalette() {
               <User className="h-4 w-4 text-moon" />
               守夜人
             </Command.Item>
-            <Command.Item onSelect={() => go('/log')} className={itemCls}>
+            <Command.Item onSelect={() => go('/update')} className={itemCls}>
               <ScrollText className="h-4 w-4 text-amber" />
               开发日志
+            </Command.Item>
+            <Command.Item onSelect={() => go('/bug-report')} className={itemCls}>
+              <Bug className="h-4 w-4 text-rose-400" />
+              Bug 反馈
             </Command.Item>
           </Command.Group>
 

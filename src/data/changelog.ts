@@ -17,11 +17,58 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '26w01a',
+    date: '2026-08-14',
+    title: 'Mojang 版本号体系启动 + Bug 反馈页 + 致命会话修复',
+    codename: 'Snapshot 26w01a · 校正',
+    status: 'in-progress',
+    highlights: [
+      '启用 Mojang 风格快照版本号：26w01a = 2026 年第 1 周 a 版',
+      '「更新日志」页正式改名 /update（同时保留 /log 兼容旧链接）',
+      '修复 useAuth 致命 bug：API 不可用不再强制清登录会话',
+      '上线 Bug 反馈页 /bug-report：类别/出现时间/复现方法/概述，localStorage 持久化',
+    ],
+    changes: [
+      {
+        type: 'feat',
+        scope: 'Versioning',
+        description: '确立 Mojang 快照版本号规范（YYwWW[a-z]）：修 bug 依次递增 a→b→c',
+        details: ['26w01a = 2026 年第 1 周快照版本 a', '同日内多次修 bug 用字母后缀区分'],
+      },
+      {
+        type: 'feat',
+        scope: 'Pages',
+        description: '上线 Bug 反馈页 /bug-report：表单 + 历史列表，localStorage 持久化',
+        details: ['类别：首页 / 其他项目 / 登录系统 / 更新页 / 设置 / 其他', '字段：类别、出现时间、复现方法、概述、联系方式（可选）'],
+      },
+      {
+        type: 'fix',
+        scope: 'Auth',
+        description: '修复 useAuth 致命 bug：所有请求错误都会无条件 clear() 掉用户会话',
+        details: ['仅在 code=UNAUTHORIZED 或 status=401 时清会话', '其他错误（接口 404/5xx）标记 hydrated=true 保留用户态', '与 App.tsx restoreSession 策略保持一致'],
+      },
+      {
+        type: 'fix',
+        scope: 'Routing',
+        description: '更新日志路由从 /log 更名为 /update，/log 保留兼容旧链接',
+        details: ['Footer「更新日志」跳转 /update', '⌘K 命令面板「开发日志」跳转 /update', 'changelog 链接同步更新为 /update'],
+      },
+      {
+        type: 'feat',
+        scope: 'Navigation',
+        description: 'Bug 反馈入口加入 ⌘K 命令面板、Footer 栖息地列表',
+      },
+    ],
+    links: [
+      { label: '查看当前部署', href: 'https://owlbyte-home.pages.dev/update' },
+    ],
+  },
+  {
     version: 'v0.1.3-nightly',
     date: '2026-08-14',
     title: '更新日志访问记录 + 页面去 emoji',
     codename: 'Build 0.1.3 · 观察记录',
-    status: 'in-progress',
+    status: 'released',
     highlights: [
       '每次访问 /log 都会被记录，页面实时展示浏览统计',
       '移除 DevLog 所有 emoji，改用 [feat] [fix] 纯文本标签',
@@ -67,7 +114,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       },
     ],
     links: [
-      { label: '查看当前部署', href: 'https://owlbyte-home.pages.dev/log' },
+      { label: '查看当前部署', href: 'https://owlbyte-home.pages.dev/update' },
     ],
   },
   {

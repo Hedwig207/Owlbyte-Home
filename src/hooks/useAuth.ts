@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useErrorLogStore } from '@/stores/errorLogStore';
-import { api, setAccessToken } from '@/lib/api';
+import { api, setAccessToken, ApiRequestError } from '@/lib/api';
 import type { User } from '@/lib/types';
 
 export function useAuth() {
@@ -24,7 +24,14 @@ export function useAuth() {
         setSession(data, useAuthStore.getState().accessToken ?? '');
       } catch (err: unknown) {
         if (cancelled) return;
-        clear();
+        const status = err instanceof ApiRequestError ? err.status : (err as any)?.status;
+        const code = err instanceof ApiRequestError ? err.code : (err as any)?.code;
+        if (code === 'UNAUTHORIZED' || status === 401) {
+          clear();
+        } else {
+          const s = useAuthStore.getState();
+          useAuthStore.setState({ ...s, hydrated: true });
+        }
         const message = err instanceof Error ? err.message : String(err);
         addLog({ level: 'warn', message: `会话恢复失败: ${message}` });
       } finally {

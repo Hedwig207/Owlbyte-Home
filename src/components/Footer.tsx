@@ -51,7 +51,8 @@ export default function Footer() {
             title="章节"
             items={[
               ...NAV_ITEMS.map((n) => ({ label: n.label, href: n.href })),
-              { label: '更新日志', href: '/log' },
+              { label: '更新日志', href: '/update' },
+              { label: 'Bug 反馈', href: '/bug-report' },
             ]}
           />
           <FooterCol title="作品" items={PRODUCTS.map((p) => ({ label: p.name, href: p.href }))} />

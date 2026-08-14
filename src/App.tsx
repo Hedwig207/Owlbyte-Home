@@ -28,6 +28,7 @@ import VisitorsPage from '@/pages/admin/Visitors';
 import SettingsDebugPage from '@/pages/SettingsDebug';
 
 const DevLog = lazy(() => import('@/pages/DevLog'));
+const BugReport = lazy(() => import('@/pages/BugReport'));
 
 function CursorGlow() {
   useCursorGlow();
@@ -71,7 +72,9 @@ function AppShell() {
         <Route path="/project/:id" element={<ProjectDetailPage />} />
         <Route path="/watchman" element={<WatchmenPage />} />
         <Route path="/watchman/hedwig" element={<WatchmanHedwigPage />} />
+        <Route path="/update" element={<Suspense fallback={<div className="flex min-h-screen items-center justify-center text-parchment/50">加载中…</div>}><DevLog /></Suspense>} />
         <Route path="/log" element={<Suspense fallback={<div className="flex min-h-screen items-center justify-center text-parchment/50">加载中…</div>}><DevLog /></Suspense>} />
+        <Route path="/bug-report" element={<Suspense fallback={<div className="flex min-h-screen items-center justify-center text-parchment/50">加载中…</div>}><BugReport /></Suspense>} />
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
