@@ -36,6 +36,84 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  // ─────────────── 26w02d ───────────────
+  {
+    version: '26w02d',
+    date: '2026-08-16',
+    title: '浅色模式对比度修复 + Cloudflare Functions 路由修复',
+    codename: 'Snapshot 26w02d · 破晓之光',
+    status: 'released',
+    overview:
+      '26w02d 聚焦于 26w02c 遗留的两个核心问题：浅色模式下图标和文字对比度不足（几乎看不见），' +
+      '以及 Bug 反馈云端 API 始终「未连接」。前者通过全面的 CSS 浅色模式覆盖规则解决，' +
+      '后者发现根因是 Cloudflare Pages 缺少 _routes.json，导致 /api/* 被当成 SPA 路由处理。',
+    fixes: [
+      {
+        heading: '浅色模式',
+        items: [
+          {
+            scope: 'CSS',
+            description: '修复浅色模式下图标、表单 placeholder、空状态等元素不可见',
+            details: [
+              '新增 html.light 全面覆盖规则（index.css 末尾）',
+              '表单 input/textarea 在浅色模式下提高边框/背景对比度',
+              'placeholder 颜色从 20% 不透明度提高到 45%',
+              '::selection 选区颜色适配浅色模式',
+              'text-parchment/20 等低对比度 Tailwind 类在浅色模式下强制覆盖',
+              'binary-stream 装饰流颜色适配浅色模式',
+              'text-gradient-amber/moon 渐变文字适配浅色模式',
+            ],
+          },
+          {
+            scope: 'Component',
+            description: '移除 datetime-local 输入框硬编码 colorScheme: dark',
+            details: [
+              '之前 BugReport.tsx 的 datetime 输入框强制 color-scheme: dark',
+              '浅色模式下日期选择器呈现深色主题，与页面严重不协调',
+              '移除后自动遵循 :root/html.light 的 color-scheme 声明',
+            ],
+          },
+        ],
+      },
+      {
+        heading: 'Cloudflare',
+        items: [
+          {
+            scope: 'Deploy',
+            description: '修复 Bug 反馈云端 API 始终「未连接」的问题',
+            details: [
+              '根因：缺少 functions/_routes.json',
+              '没有 _routes.json 时，Cloudflare Pages 将 /api/* 当成 SPA 路由',
+              'SPA 路由返回 index.html（Content-Type: text/html），前端 fetch 判定为失败',
+              '创建 _routes.json：include /api/*、exclude /*',
+              '修复后 /api/bug-reports 的 GET/POST 由 Cloudflare Function 正确处理',
+            ],
+          },
+        ],
+      },
+    ],
+    technical: [
+      {
+        heading: 'CSS 架构',
+        items: [
+          {
+            scope: 'CSS',
+            description: '引入 html.light 覆盖层作为浅色模式的安全网',
+            details: [
+              '使用 html.light selector + !important 覆盖 Tailwind 工具类',
+              '覆盖范围：选区、表单、玻璃面板、按钮、装饰流、渐变文字',
+              'Tailwind /20、/30、/50、/60 透明度修饰符在浅色模式下重新映射',
+              '无需修改组件代码即可全局修复对比度问题',
+            ],
+          },
+        ],
+      },
+    ],
+    links: [
+      { label: '查看当前部署', href: 'https://owlbyte-home.pages.dev/update' },
+    ],
+  },
+
   // ─────────────── 26w02c ───────────────
   {
     version: '26w02c',

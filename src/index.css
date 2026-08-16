@@ -231,3 +231,116 @@ html.light ::-webkit-scrollbar-thumb:hover {
   }
   .char-stagger > span { opacity: 1; transform: none; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   浅色模式全局覆盖 —— 修复所有对比度问题
+   ════════════════════════════════════════════════════════════════ */
+
+/* 文本选区 */
+html.light ::selection {
+  background: rgba(176,125,44,0.25);
+  color: #2A2218;
+}
+
+/* 表单输入框 —— 提高浅色模式下的对比度 */
+html.light input,
+html.light textarea {
+  color: rgb(var(--c-parchment));
+  background-color: rgb(var(--c-ink-900)) !important;
+  border-color: rgb(var(--c-ink-700)) !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: rgba(42,34,24,0.45) !important;
+}
+
+/* datetime-local 移除强制 dark */
+html.light input[type="datetime-local"] {
+  color-scheme: light;
+}
+
+/* 禁用/只读表单 */
+html.light input:disabled,
+html.light textarea:disabled {
+  opacity: 0.5;
+}
+
+/* 玻璃面板 —— 浅色模式微调 */
+html.light .glass-panel {
+  background-color: rgba(245,240,228,0.7) !important;
+  border-color: rgba(42,34,24,0.15) !important;
+}
+
+html.light .hairline {
+  border-color: rgba(42,34,24,0.15) !important;
+}
+
+/* 按钮微调 */
+html.light .btn-ghost {
+  background-color: rgba(245,240,228,0.8);
+  border-color: rgba(42,34,24,0.2);
+}
+
+html.light .btn-ghost:hover {
+  background-color: rgba(245,240,228,0.95);
+}
+
+/* 二进制装饰流 —— 浅色模式下更协调 */
+html.light .binary-stream {
+  color: rgba(45,98,88,0.15);
+}
+
+/* 渐变文字 —— 浅色模式微调 */
+html.light .text-gradient-amber {
+  background: linear-gradient(135deg, #B07D2C 0%, #83591F 50%, #5C3E10 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html.light .text-gradient-moon {
+  background: linear-gradient(135deg, #2D6258 0%, #3A7E72 60%, #5FB8A8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 命令面板/浮层 —— 浅色模式适配 */
+html.light [data-cmd-panel],
+html.light .cmd-overlay {
+  background-color: rgba(245,240,228,0.95);
+  color: rgb(var(--c-parchment));
+}
+
+/* 空状态图标/低对比度元素 —— 提高可见度 */
+html.light .text-parchment\/20 {
+  color: rgba(42,34,24,0.45) !important;
+}
+
+html.light .text-parchment\/30 {
+  color: rgba(42,34,24,0.55) !important;
+}
+
+html.light .text-parchment\/50 {
+  color: rgba(42,34,24,0.7) !important;
+}
+
+html.light .text-parchment\/60 {
+  color: rgba(42,34,24,0.8) !important;
+}
+
+html.light .text-slate-fog {
+  color: rgb(107,116,136) !important;
+}
+
+/* 按钮禁用状态 */
+html.light .cursor-not-allowed {
+  opacity: 0.4;
+}
+
+/* 导航栏/Header */
+html.light .nav-blur {
+  background-color: rgba(245,240,228,0.85) !important;
+  border-color: rgba(42,34,24,0.1) !important;
+}

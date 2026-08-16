@@ -283,7 +283,6 @@ export default function BugReportPage() {
                       value={occurTime}
                       onChange={e => setOccurTime(e.target.value)}
                       className="w-full rounded-lg border border-parchment/10 bg-ink-800/40 px-4 py-2.5 text-sm text-parchment outline-none transition-colors focus:border-amber/50 placeholder:text-parchment/20"
-                      style={{ colorScheme: 'dark' }}
                     />
                   </div>
                 </div>
