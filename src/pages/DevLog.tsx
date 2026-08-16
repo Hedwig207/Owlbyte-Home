@@ -1,21 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ScrollText, ArrowLeft, ExternalLink, Eye, Users } from 'lucide-react';
+import { ScrollText, ArrowLeft, ExternalLink, Eye, Users, Plus, Edit3, Bug, Trash2, Cpu } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { CHANGELOG, CHANGELOG_STATS, getLatestVersion, type ChangelogEntry } from '@/data/changelog';
+import {
+  CHANGELOG,
+  CHANGELOG_STATS,
+  getLatestVersion,
+  type ChangelogEntry,
+  type ChangelogCategory,
+  type ChangeItem,
+} from '@/data/changelog';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
-
-const TYPE_LABEL: Record<ChangelogEntry['changes'][number]['type'], string> = {
-  feat: 'feat',
-  fix: 'fix',
-  refactor: 'refactor',
-  perf: 'perf',
-  docs: 'docs',
-  chore: 'chore',
-  design: 'design',
-};
 
 const STATUS_STYLE: Record<ChangelogEntry['status'], { label: string; dot: string; badge: string; node: string }> = {
   released: {
@@ -74,14 +71,88 @@ function TimelineNode({ status }: { status: ChangelogEntry['status'] }) {
   );
 }
 
-function ChangelogCard({ entry }: { entry: ChangelogEntry }) {
-  const changes = entry.changes || [];
-  const grouped = changes.reduce<Record<string, typeof changes>>((acc, c) => {
-    (acc[c.type] ||= []).push(c);
-    return acc;
-  }, {});
+// MC Wiki 风格栏目定义
+const SECTION_META: Record<string, { label: string; icon: any; accent: string; line: string; bullet: string }> = {
+  overview: { label: '版本简介', icon: ScrollText, accent: 'text-amber', line: 'from-amber/40', bullet: 'bg-amber' },
+  additions: { label: '新增内容', icon: Plus, accent: 'text-emerald-400', line: 'from-emerald-400/40', bullet: 'bg-emerald-400' },
+  changes: { label: '特性更改', icon: Edit3, accent: 'text-sky-400', line: 'from-sky-400/40', bullet: 'bg-sky-400' },
+  fixes: { label: '漏洞修复', icon: Bug, accent: 'text-rose-400', line: 'from-rose-400/40', bullet: 'bg-rose-400' },
+  removals: { label: '移除内容', icon: Trash2, accent: 'text-purple-400', line: 'from-purple-400/40', bullet: 'bg-purple-400' },
+  technical: { label: '技术性更改', icon: Cpu, accent: 'text-moon', line: 'from-moon/40', bullet: 'bg-moon' },
+};
 
-  const typeOrder: ChangelogEntry['changes'][number]['type'][] = ['feat', 'fix', 'refactor', 'perf', 'design', 'docs', 'chore'];
+function ChangelogCard({ entry }: { entry: ChangelogEntry }) {
+  const sections: Array<{ key: string; cats?: ChangelogCategory[] }> = [
+    { key: 'additions', cats: entry.additions },
+    { key: 'changes', cats: entry.changes },
+    { key: 'fixes', cats: entry.fixes },
+    { key: 'removals', cats: entry.removals },
+    { key: 'technical', cats: entry.technical },
+  ];
+
+  const renderItems = (items: ChangeItem[]) => (
+    <ul className="space-y-3">
+      {items.map((item, i) => (
+        <li key={i} className="rounded-lg border border-parchment/[0.06] bg-parchment/[0.02] p-3.5 transition-colors hover:border-parchment/10">
+          <div className="flex flex-wrap items-baseline gap-2">
+            {item.scope && (
+              <span className="mono-label rounded border border-parchment/12 bg-ink-800/60 px-1.5 py-0.5 text-parchment/60">
+                {item.scope}
+              </span>
+            )}
+            <p className="text-sm text-parchment/90">{item.description}</p>
+          </div>
+          {item.details && item.details.length > 0 && (
+            <ul className="mt-2 space-y-1 pl-5">
+              {item.details.map((d, j) => (
+                <li key={j} className="flex items-start gap-2 text-xs text-parchment/60">
+                  <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-parchment/30" />
+                  <span>{d}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+
+  const renderSection = (key: string, cats?: ChangelogCategory[]) => {
+    if (!cats || cats.length === 0) return null;
+    const meta = SECTION_META[key];
+    if (!meta) return null;
+    const Icon = meta.icon;
+
+    return (
+      <div className="mt-8">
+        <div className="mb-4 flex items-center gap-3">
+          <div className={cn('inline-flex h-8 w-8 items-center justify-center rounded-lg border border-parchment/10 bg-ink-800/60', meta.accent)}>
+            <Icon className="h-4 w-4" />
+          </div>
+          <h3 className={cn('display-serif text-xl font-light md:text-2xl', meta.accent)}>
+            {meta.label}
+          </h3>
+          <div className={cn('h-px flex-1 bg-gradient-to-r via-parchment/10 to-transparent', meta.line)} />
+        </div>
+
+        <div className="space-y-6 pl-2 md:pl-4">
+          {cats.map((cat, ci) => (
+            <div key={ci}>
+              {cat.heading && (
+                <div className="mb-3 flex items-center gap-2">
+                  <span className={cn('h-1.5 w-1.5 rounded-full', meta.bullet)} />
+                  <p className="mono-label text-[0.7rem] uppercase tracking-wider text-parchment/50">
+                    {cat.heading}
+                  </p>
+                </div>
+              )}
+              {renderItems(cat.items)}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="relative flex gap-6">
@@ -90,7 +161,8 @@ function ChangelogCard({ entry }: { entry: ChangelogEntry }) {
       </div>
 
       <div className="glass-panel group mb-10 flex-1 rounded-2xl p-6 transition-all duration-500 hover:border-amber/20 md:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        {/* 版本元信息栏 */}
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-parchment/8 pb-5">
           <div className="flex flex-wrap items-center gap-3">
             <span className="font-mono text-lg font-medium text-parchment md:text-xl">{entry.version}</span>
             <StatusBadge status={entry.status} />
@@ -105,65 +177,36 @@ function ChangelogCard({ entry }: { entry: ChangelogEntry }) {
           </time>
         </div>
 
-        <h2 className="display-serif mt-4 text-2xl font-light text-parchment md:text-3xl">
+        <h2 className="display-serif mt-5 text-2xl font-light text-parchment md:text-3xl">
           {entry.title}
         </h2>
 
-        {entry.highlights && entry.highlights.length > 0 && (
-          <div className="mt-5 rounded-xl border border-amber/20 bg-amber/[0.04] p-4">
-            <p className="mono-label mb-2 text-amber/80">核心亮点</p>
-            <ul className="space-y-1.5">
-              {entry.highlights.map((h, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-parchment/85">
-                  <span className="mt-0.5 text-amber">·</span>
-                  <span>{h}</span>
-                </li>
-              ))}
-            </ul>
+        {/* 版本简介（MC Wiki 顶部 About） */}
+        {entry.overview && (
+          <div className="mt-8">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-parchment/10 bg-ink-800/60 text-amber">
+                <ScrollText className="h-4 w-4" />
+              </div>
+              <h3 className="display-serif text-xl font-light text-amber md:text-2xl">
+                版本简介
+              </h3>
+              <div className="h-px flex-1 bg-gradient-to-r from-amber/40 via-parchment/10 to-transparent" />
+            </div>
+            <div className="rounded-xl border border-amber/20 bg-amber/[0.04] p-5 pl-6">
+              <p className="text-sm leading-relaxed text-parchment/85 md:text-base">
+                {entry.overview}
+              </p>
+            </div>
           </div>
         )}
 
-        <div className="mt-6 space-y-5">
-          {typeOrder.map((t) =>
-            grouped[t] ? (
-              <div key={t}>
-                <p className="mono-label mb-2.5 flex items-center gap-1.5 text-parchment/50">
-                  <span className="rounded bg-ink-800/60 px-1.5 py-0.5 text-parchment/70">
-                    [{TYPE_LABEL[t]}]
-                  </span>
-                  <span className="text-parchment/20">· {grouped[t].length}</span>
-                </p>
-                <ul className="space-y-3">
-                  {grouped[t].map((c, i) => (
-                    <li key={i} className="rounded-lg border border-parchment/[0.06] bg-parchment/[0.02] p-3.5 transition-colors hover:border-parchment/10">
-                      <div className="flex flex-wrap items-baseline gap-2">
-                        {c.scope && (
-                          <span className="mono-label rounded border border-parchment/12 bg-ink-800/60 px-1.5 py-0.5 text-parchment/60">
-                            {c.scope}
-                          </span>
-                        )}
-                        <p className="text-sm text-parchment/90">{c.description}</p>
-                      </div>
-                      {c.details && c.details.length > 0 && (
-                        <ul className="mt-2 space-y-1 pl-5">
-                          {c.details.map((d, j) => (
-                            <li key={j} className="flex items-start gap-2 text-xs text-parchment/60">
-                              <span className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-parchment/30" />
-                              <span>{d}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null
-          )}
-        </div>
+        {/* 各栏目 */}
+        {sections.map(s => renderSection(s.key, s.cats))}
 
+        {/* 参考链接 */}
         {(entry.author || (entry.links && entry.links.length > 0)) && (
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-parchment/8 pt-5">
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-parchment/8 pt-5">
             <p className="mono-label text-slate-fog">
               — {entry.author ?? 'Hedwig'}
             </p>
