@@ -10,7 +10,7 @@ import { getMoonPhase } from '@/lib/moonPhase';
  * - 应用 class 到 documentElement，持久化到 localStorage
  */
 export function useTheme() {
-  const { themeMode, autoNight, setThemeMode } = useUiStore();
+  const { themeMode, autoNight, setThemeMode, setAutoNight } = useUiStore();
   const { isNight } = useNightMode();
   const moon = useMemo(() => getMoonPhase(), []);
 
@@ -25,7 +25,8 @@ export function useTheme() {
   // 持久化用户选择
   useEffect(() => {
     localStorage.setItem('owlbyte:theme', themeMode);
-  }, [themeMode]);
+    localStorage.setItem('owlbyte:autoNight', String(autoNight));
+  }, [themeMode, autoNight]);
 
   // 恢复
   useEffect(() => {
@@ -33,7 +34,11 @@ export function useTheme() {
     if (saved === 'light' || saved === 'dark') {
       setThemeMode(saved);
     }
-  }, [setThemeMode]);
+    const savedAuto = localStorage.getItem('owlbyte:autoNight');
+    if (savedAuto === 'false') {
+      setAutoNight(false);
+    }
+  }, [setThemeMode, setAutoNight]);
 
   return {
     theme: effective,

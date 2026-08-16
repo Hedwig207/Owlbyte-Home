@@ -14,49 +14,49 @@ export default {
     },
     extend: {
       colors: {
-        // 夜行精密工坊调色板
+        // 夜行精密工坊调色板 — CSS 变量驱动，支持 .light 主题切换
         ink: {
-          950: "#06080F",
-          900: "#0A0E1A",
-          800: "#121829",
-          700: "#1B2236",
-          600: "#262E45",
-          500: "#36405C",
+          950: "rgb(var(--c-ink-950) / <alpha-value>)",
+          900: "rgb(var(--c-ink-900) / <alpha-value>)",
+          800: "rgb(var(--c-ink-800) / <alpha-value>)",
+          700: "rgb(var(--c-ink-700) / <alpha-value>)",
+          600: "rgb(var(--c-ink-600) / <alpha-value>)",
+          500: "rgb(var(--c-ink-500) / <alpha-value>)",
         },
         amber: {
           // 猫头鹰之眼 — 琥珀金
-          DEFAULT: "#E8B65A",
+          DEFAULT: "rgb(var(--c-amber) / <alpha-value>)",
           50: "#FBF1D9",
           100: "#F6E2B0",
           200: "#F0D084",
           300: "#ECBE63",
           400: "#E8B65A",
-          500: "#D9A23F",
-          600: "#B07D2C",
+          500: "rgb(var(--c-amber-500) / <alpha-value>)",
+          600: "rgb(var(--c-amber-600) / <alpha-value>)",
           700: "#83591F",
         },
         moon: {
           // 月光青
-          DEFAULT: "#5FB8A8",
+          DEFAULT: "rgb(var(--c-moon) / <alpha-value>)",
           50: "#D6F0EA",
           100: "#A9DBD0",
           200: "#7CC9B9",
           300: "#5FB8A8",
           400: "#4A9C8E",
-          500: "#3A7E72",
+          500: "rgb(var(--c-moon-500) / <alpha-value>)",
         },
         parchment: {
           // 羊皮纸白
-          DEFAULT: "#F4EAD5",
+          DEFAULT: "rgb(var(--c-parchment) / <alpha-value>)",
           50: "#FBF6EC",
-          100: "#F4EAD5",
+          100: "rgb(var(--c-parchment) / <alpha-value>)",
           200: "#E0D4B6",
           300: "#C2B58F",
         },
         slate: {
           // 次级文本
-          mist: "#9AA3B8",
-          fog: "#6B7488",
+          mist: "rgb(var(--c-mist) / <alpha-value>)",
+          fog: "rgb(var(--c-fog) / <alpha-value>)",
         },
       },
       fontFamily: {

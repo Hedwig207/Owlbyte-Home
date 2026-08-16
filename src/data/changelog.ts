@@ -36,6 +36,90 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  // ─────────────── 26w02c ───────────────
+  {
+    version: '26w02c',
+    date: '2026-08-16',
+    title: '浅色主题落地 + Bug 反馈上云',
+    codename: 'Snapshot 26w02c · 破晓',
+    status: 'released',
+    overview:
+      '26w02c 解决了两个用户反馈的关键问题：浅色模式切换后完全无视觉效果（CSS 缺失），' +
+      '以及 Bug 反馈数据困在 localStorage 无法跨设备共享。本次更新让主题系统真正可用，' +
+      'Bug 反馈接入 Cloudflare Pages Functions 云端存储。',
+    additions: [
+      {
+        heading: 'Bug 反馈后端',
+        items: [
+          {
+            scope: 'API',
+            description: '新增 Cloudflare Pages Function /api/bug-reports（GET + POST）',
+            details: [
+              'POST：提交 Bug 报告（category/occurTime/reproduce/summary/contact）',
+              'GET：获取所有已提交的 Bug 报告列表',
+              '基于内存 Map 存储（Mock 模式），后续可接入 D1 数据库持久化',
+              'IP 级限流：每小时 10 次',
+            ],
+          },
+          {
+            scope: 'UI',
+            description: 'BugReport 页面改为云端优先 + 本地兜底',
+            details: [
+              '页面加载时先从云端拉取已有报告',
+              '提交时优先 POST 到云端，失败则回退 localStorage',
+              '底部状态提示根据连接模式动态切换（云端 / 本地）',
+            ],
+          },
+        ],
+      },
+    ],
+    fixes: [
+      {
+        heading: '主题系统',
+        items: [
+          {
+            scope: 'CSS',
+            description: '修复浅色模式切换后视觉完全无变化的问题',
+            details: [
+              '根因：Tailwind 颜色硬编码为 hex 值，.light 类无任何 CSS 覆盖规则',
+              '修复：Tailwind config 颜色改为 rgb(var(--c-*) / <alpha-value>) 格式',
+              'index.css 新增 html.light 色彩变量集（暖羊皮纸浅色方案）',
+              '浅色模式 body 背景/噪点/滚动条/选区色全面覆盖',
+            ],
+          },
+          {
+            scope: 'State',
+            description: '修复 autoNight 状态不持久化的问题',
+            details: [
+              'useTheme hook 新增 autoNight 的 localStorage 存取',
+              '用户关闭夜班自动模式后，刷新页面不再被重置为 true',
+            ],
+          },
+        ],
+      },
+    ],
+    technical: [
+      {
+        heading: '色彩系统重构',
+        items: [
+          {
+            scope: 'Tailwind',
+            description: '全站颜色从硬编码 hex 迁移至 CSS 变量驱动',
+            details: [
+              'ink-950~500、amber、moon、parchment、slate-mist/fog 全部变量化',
+              '深色模式变量定义在 :root，浅色模式定义在 html.light',
+              '所有 Tailwind 工具类（bg-ink-900、text-parchment 等）自动响应主题切换',
+              '透明度修饰符（/10、/20 等）通过 <alpha-value> 仍然可用',
+            ],
+          },
+        ],
+      },
+    ],
+    links: [
+      { label: '查看当前部署', href: 'https://owlbyte-home.pages.dev/update' },
+    ],
+  },
+
   // ─────────────── 26w02b ───────────────
   {
     version: '26w02b',

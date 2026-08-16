@@ -4,20 +4,48 @@
 
 :root {
   color-scheme: dark;
-  --ink-900: #0A0E1A;
-  --ink-800: #121829;
-  --amber: #E8B65A;
-  --moon: #5FB8A8;
-  --parchment: #F4EAD5;
-  --mist: #9AA3B8;
+  /* 深色模式（默认） */
+  --c-ink-950: 6 8 15;
+  --c-ink-900: 10 14 26;
+  --c-ink-800: 18 24 41;
+  --c-ink-700: 27 34 54;
+  --c-ink-600: 38 46 69;
+  --c-ink-500: 54 64 92;
+  --c-amber: 232 182 90;
+  --c-amber-500: 217 162 63;
+  --c-amber-600: 176 125 44;
+  --c-moon: 95 184 168;
+  --c-moon-500: 58 126 114;
+  --c-parchment: 244 234 213;
+  --c-mist: 154 163 184;
+  --c-fog: 107 116 136;
   /* 鼠标光晕跟随 */
   --cursor-x: 50vw;
   --cursor-y: 30vh;
 }
 
+html.light {
+  color-scheme: light;
+  /* 浅色模式 — 暖羊皮纸 */
+  --c-ink-950: 237 232 220;
+  --c-ink-900: 245 240 228;
+  --c-ink-800: 232 224 204;
+  --c-ink-700: 212 203 179;
+  --c-ink-600: 184 174 148;
+  --c-ink-500: 154 143 112;
+  --c-amber: 176 125 44;
+  --c-amber-500: 176 125 44;
+  --c-amber-600: 131 89 31;
+  --c-moon: 58 126 114;
+  --c-moon-500: 45 98 88;
+  --c-parchment: 42 34 24;
+  --c-mist: 107 116 136;
+  --c-fog: 154 163 184;
+}
+
 html, body {
-  background-color: var(--ink-900);
-  color: var(--parchment);
+  background-color: rgb(var(--c-ink-900));
+  color: rgb(var(--c-parchment));
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
   line-height: 1.55;
   font-weight: 400;
@@ -47,6 +75,19 @@ body {
     radial-gradient(circle at 20% 10%, rgba(95,184,168,0.06), transparent 40%),
     radial-gradient(circle at 80% 90%, rgba(232,182,90,0.05), transparent 45%);
   min-height: 100vh;
+}
+
+/* 浅色主题 body 背景渐变 */
+html.light body {
+  background-image:
+    linear-gradient(180deg, rgba(245,240,228,0) 0%, rgba(237,232,220,0.6) 100%),
+    radial-gradient(circle at 20% 10%, rgba(58,126,114,0.05), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(176,125,44,0.04), transparent 45%);
+}
+
+/* 浅色模式噪点降低 */
+html.light body::before {
+  opacity: 0.25;
 }
 
 /* 噪点纹理覆盖层 */
@@ -85,6 +126,16 @@ body::before {
   border: 2px solid #0A0E1A;
 }
 ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #36405C, #262E45); }
+
+/* 浅色模式滚动条 */
+html.light ::-webkit-scrollbar-track { background: #F5F0E4; }
+html.light ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #D4CBB3, #B8AE94);
+  border-color: #F5F0E4;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #B8AE94, #9A8F70);
+}
 
 /* 文本选区 */
 ::selection {

@@ -90,9 +90,22 @@ export default function BugReportPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitMsg, setSubmitMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
+  const [cloudMode, setCloudMode] = useState(false);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
+    // 先加载本地数据（即时显示）
     setReports(loadReports());
+    // 尝试从云端拉取
+    fetch('/api/bug-reports')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.reports?.length) {
+          setReports(data.reports);
+          setCloudMode(true);
+        }
+      })
+      .catch(() => { /* 后端不可用，保持本地模式 */ });
   }, []);
 
   const stats = useMemo(() => {
@@ -104,35 +117,58 @@ export default function BugReportPage() {
 
   const isValid = category && occurTime.trim() && reproduce.trim() && summary.trim();
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid || submitting) return;
     setSubmitting(true);
     setSubmitMsg(null);
+    const payload = {
+      category,
+      occurTime: occurTime.trim(),
+      reproduce: reproduce.trim(),
+      summary: summary.trim(),
+      contact: contact.trim() || undefined,
+    };
     try {
+      // 尝试云端提交
+      const res = await fetch('/api/bug-reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const item: BugReportItem = {
+          id: data.id || uuid(),
+          ...payload,
+          createdAt: new Date().toISOString(),
+          status: 'open',
+        };
+        setReports(prev => [item, ...prev]);
+        setCloudMode(true);
+        setSubmitMsg({ type: 'ok', text: 'Bug 已提交至云端，感谢你的守夜观察。' });
+      } else {
+        throw new Error('云端提交失败');
+      }
+    } catch {
+      // Fallback: localStorage
       const item: BugReportItem = {
         id: uuid(),
-        category,
-        occurTime: occurTime.trim(),
-        reproduce: reproduce.trim(),
-        summary: summary.trim(),
-        contact: contact.trim() || undefined,
+        ...payload,
         createdAt: new Date().toISOString(),
         status: 'open',
       };
       const next = [item, ...reports];
       setReports(next);
       saveReports(next);
+      setSubmitMsg({ type: 'ok', text: '云端不可用，已保存到本地。感谢你的守夜观察。' });
+    } finally {
+      setSubmitting(false);
       setCategory('首页');
       setOccurTime('');
       setReproduce('');
       setSummary('');
       setContact('');
-      setSubmitMsg({ type: 'ok', text: 'Bug 已提交，感谢你的守夜观察。' });
-    } catch (err: any) {
-      setSubmitMsg({ type: 'err', text: `提交失败：${err?.message ?? String(err)}` });
-    } finally {
-      setSubmitting(false);
       setTimeout(() => setSubmitMsg(null), 5000);
     }
   };
@@ -311,7 +347,9 @@ export default function BugReportPage() {
 
                 <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                   <p className="mono-label max-w-md text-parchment/30">
-                    数据存储于你本地浏览器（localStorage），仅在当前浏览器可见；跨设备/浏览器暂未同步。
+                    {cloudMode
+                      ? '数据存储于云端服务器，所有访客共享。'
+                      : '云端未连接，数据仅存储于本地浏览器（localStorage）。'}
                   </p>
                   <button
                     type="submit"
