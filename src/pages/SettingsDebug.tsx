@@ -24,7 +24,6 @@ type TabKey = 'logs' | 'settings';
 
 export default function SettingsDebug() {
   const [tab, setTab] = useState<TabKey>('logs');
-  const latestVer = getLatestVersion();
 
   return (
     <div className="relative min-h-screen">
@@ -242,6 +241,7 @@ function LogItem({ log }: { log: ErrorLog }) {
 function SettingsPanel() {
   const { themeMode, autoNight, setThemeMode, setAutoNight } = useUiStore();
   const { isDark } = useTheme();
+  const latestVer = getLatestVersion();
 
   const clearGithubCache = () => {
     try {
