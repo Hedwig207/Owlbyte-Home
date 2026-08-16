@@ -12,7 +12,7 @@ import { useCommandPalette } from '@/hooks/useCommandPalette';
 export default function CommandPalette() {
   const { open, setOpen } = useCommandPalette();
   const navigate = useNavigate();
-  const { setThemeMode, themeMode } = useUiStore();
+  const { setThemeMode, themeMode, setAutoNight } = useUiStore();
   const { isAuthenticated, isAdmin, clear } = useAuthStore();
 
   const go = (path: string) => {
@@ -99,12 +99,12 @@ export default function CommandPalette() {
           </Command.Group>
 
           <Command.Group heading="主题" className={`px-2 ${groupHeadingCls}`}>
-            <Command.Item onSelect={() => { setThemeMode('dark'); setOpen(false); }} className={itemCls}>
+            <Command.Item onSelect={() => { setThemeMode('dark'); setAutoNight(false); setOpen(false); }} className={itemCls}>
               <Moon className="h-4 w-4 text-moon" />
               深色模式
               {themeMode === 'dark' && <span className="ml-auto text-xs text-amber">●</span>}
             </Command.Item>
-            <Command.Item onSelect={() => { setThemeMode('light'); setOpen(false); }} className={itemCls}>
+            <Command.Item onSelect={() => { setThemeMode('light'); setAutoNight(false); setOpen(false); }} className={itemCls}>
               <Sun className="h-4 w-4 text-amber" />
               浅色模式
               {themeMode === 'light' && <span className="ml-auto text-xs text-amber">●</span>}
