@@ -18,13 +18,11 @@ import { useErrorLogStore, type ErrorLog } from '@/stores/errorLogStore';
 import { useUiStore } from '@/stores/uiStore';
 import { useTheme } from '@/hooks/useTheme';
 import { CACHE_PREFIX } from '@/lib/consts';
-import { getLatestVersion } from '@/data/changelog';
 
 type TabKey = 'logs' | 'settings';
 
 export default function SettingsDebug() {
   const [tab, setTab] = useState<TabKey>('logs');
-  const latestVer = getLatestVersion();
 
   return (
     <div className="relative min-h-screen">
@@ -362,11 +360,11 @@ function SettingsPanel() {
         <div className="rounded-2xl border border-parchment/10 bg-ink-800/40 p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-parchment/70">OwlByte Home</span>
-            <span className="font-mono text-xs text-parchment/50">{latestVer.version}</span>
+            <span className="font-mono text-xs text-parchment/50">v0.0.0</span>
           </div>
           <div className="mt-2 flex items-center justify-between">
             <span className="text-sm text-parchment/70">构建渠道</span>
-            <span className="font-mono text-xs text-parchment/50">{latestVer.status === 'released' ? 'release' : latestVer.status === 'in-progress' ? 'snapshot' : 'preview'}</span>
+            <span className="font-mono text-xs text-parchment/50">nightly</span>
           </div>
         </div>
       </section>

@@ -4,10 +4,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import OwlLogo from './OwlLogo';
 import { NAV_ITEMS, SOCIALS, PRODUCTS } from '@/data/brand';
 import { cn } from '@/lib/utils';
-import { getLatestVersion } from '@/data/changelog';
 
 export default function Footer() {
-  const latestVer = getLatestVersion();
   const [progress, setProgress] = useState(0); // 0..1
   const [showTop, setShowTop] = useState(false);
 
@@ -64,7 +62,7 @@ export default function Footer() {
         {/* 底部条 */}
         <div className="mt-16 flex flex-col items-start justify-between gap-6 border-t border-parchment/8 pt-8 md:flex-row md:items-center">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs text-slate-fog">
-            <span>{latestVer.version}</span>
+            <span>Build 0.1.0-nightly</span>
             <span className="h-1 w-1 rounded-full bg-slate-fog/50" />
             <span>由 Vite + React 驱动</span>
             <span className="h-1 w-1 rounded-full bg-slate-fog/50" />

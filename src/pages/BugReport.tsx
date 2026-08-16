@@ -311,7 +311,7 @@ export default function BugReportPage() {
 
                 <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                   <p className="mono-label max-w-md text-parchment/30">
-                    数据存储于你本地浏览器（localStorage），仅在当前浏览器可见；跨设备/浏览器暂未同步。
+                    数据存储于你本地浏览器（localStorage），每次进入本页都能看到。
                   </p>
                   <button
                     type="submit"
