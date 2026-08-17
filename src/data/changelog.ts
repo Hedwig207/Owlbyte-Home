@@ -36,15 +36,15 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
-  // ─────────────── 26w02d ───────────────
+  // ─────────────── 26w03a ───────────────
   {
-    version: '26w02d',
+    version: '26w03a',
     date: '2026-08-16',
     title: '浅色模式对比度修复 + Cloudflare Functions 路由修复',
-    codename: 'Snapshot 26w02d · 破晓之光',
+    codename: 'Snapshot 26w03a · 破晓之光',
     status: 'released',
     overview:
-      '26w02d 聚焦于 26w02c 遗留的两个核心问题：浅色模式下图标和文字对比度不足（几乎看不见），' +
+      '26w03a 聚焦于 26w02c 遗留的两个核心问题：浅色模式下图标和文字对比度不足（几乎看不见），' +
       '以及 Bug 反馈云端 API 始终「未连接」。前者通过全面的 CSS 浅色模式覆盖规则解决，' +
       '后者发现根因是 Cloudflare Pages 缺少 _routes.json，导致 /api/* 被当成 SPA 路由处理。',
     fixes: [
