@@ -2,8 +2,8 @@
 // Handles CORS and OPTIONS preflight for all API routes
 // @ts-nocheck
 
-function getCorsHeaders(request: Request): Record<string,string> {
-  const origin = (request as any).headers?.get('origin') ?? '*';
+function getCorsHeaders(request: Request): Record<string, string> {
+  const origin = request.headers.get('origin') ?? '*';
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Credentials': 'true',
@@ -11,9 +11,8 @@ function getCorsHeaders(request: Request): Record<string,string> {
   };
 }
 
-export function onRequest(context: { request: Request; env: any; next: () => Promise<Response>; ctx: any }): Response | Promise<Response> {
-  const { request, env, ctx } = context;
-  const corsHeaders = getCorsHeaders(request);
+export async function onRequest(context) {
+  const { request } = context;
 
   if (request.method === 'OPTIONS') {
     return new Response(null, {
@@ -27,16 +26,18 @@ export function onRequest(context: { request: Request; env: any; next: () => Pro
     });
   }
 
-  return ctx.next().then((response: Response) => {
-    const newResponse = new Response(response.body, response);
-    const customHeaders: Record<string, string> = {};
-    for (const [key, value] of response.headers.entries()) {
-      customHeaders[key] = value;
-    }
-    const mergedHeaders = { ...getCorsHeaders(request), ...customHeaders };
-    for (const [key, value] of Object.entries(mergedHeaders)) {
-      newResponse.headers.set(key, value);
-    }
-    return newResponse;
+  const response = await context.next();
+
+  // Add CORS headers to the response
+  const headers = new Headers(response.headers);
+  const cors = getCorsHeaders(request);
+  for (const [key, value] of Object.entries(cors)) {
+    headers.set(key, value);
+  }
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
   });
 }
