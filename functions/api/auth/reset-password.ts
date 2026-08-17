@@ -3,7 +3,8 @@
 // Phase C: 查 password_reset_tokens 表；当前 mock 通过
 import { jsonResponse, errorResponse, hashPassword, verifyJWT, type CFEnv } from '../../_shared/utils';
 
-export default async function handler(request: Request, env: CFEnv): Promise<Response> {
+export async function onRequest(context: { request: Request; env: CFEnv; next: () => Promise<Response>; ctx: any }): Promise<Response> {
+  const { request, env, ctx } = context;
   try {
     const body = await request.json().catch(() => null) as { token?: string; newPassword?: string } | null;
     const { token, newPassword } = body ?? {};

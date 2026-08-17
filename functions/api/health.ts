@@ -3,7 +3,8 @@
 // Returns: { status: "ok", time: ISO timestamp }
 // @ts-nocheck
 
-export default function handler(request: Request, env: any, ctx: any): Response {
+export function onRequest(context: { request: Request; env: any; next: () => Promise<Response>; ctx: any }): Response {
+  const { request, env, ctx } = context;
   return new Response(JSON.stringify({
     status: 'ok',
     time: new Date().toISOString(),

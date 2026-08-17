@@ -36,6 +36,74 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  // ─────────────── 26w03a ───────────────
+  {
+    version: '26w03a',
+    date: '2026-08-17',
+    title: 'Cloudflare Functions 导出格式修复',
+    codename: 'Snapshot 26w03a · 接线',
+    status: 'released',
+    overview:
+      '26w03a 解决了 Cloudflare Pages Functions 始终无法触发的核心问题。经过在浏览器直接访问 /api/bug-reports 确认返回的是 SPA 页面（而非预期的 JSON），' +
+      '排查发现了两个根因：所有 18 个 Function 文件都使用了错误的导出格式 `export default function handler`，' +
+      '而 Cloudflare Pages Functions 要求使用 `export function onRequest`（命名导出而非 default），并且参数结构必须为 `(context)` 而非 `(request, env, ctx)`。' +
+      '同时将 `_routes.json` 放回 `functions/` 目录，确保 Git 集成部署时 Cloudflare 能正确识别路由规则。',
+    fixes: [
+      {
+        heading: 'Cloudflare Functions',
+        items: [
+          {
+            scope: 'API',
+            description: '修复 18 个 Function 文件的导出格式，全部改为 Cloudflare Pages 标准接口',
+            details: [
+              '格式错误：export default function handler(request, env, ctx)',
+              '正确格式：export function onRequest(context)',
+              'context 为对象结构：{ request, env, next, ctx }',
+              '函数体首行添加解构：const { request, env, ctx } = context;',
+              '保持所有 import、业务逻辑、响应返回完全不变',
+            ],
+          },
+          {
+            scope: 'Routing',
+            description: '将 _routes.json 从 public/ 移回 functions/ 目录',
+            details: [
+              'Git 集成部署时 Cloudflare 从仓库根的 functions/ 读取 _routes.json',
+              'public/ 中的文件会复制到 dist/ 静态输出，但 _routes.json 需要在构建阶段被 Wrangler 读取',
+              '规则保持不变：include ["/api/*"]、exclude ["/*"]',
+            ],
+          },
+        ],
+      },
+    ],
+    technical: [
+      {
+        heading: '受影响的 Function 文件（18个）',
+        items: [
+          {
+            scope: 'Middleware',
+            description: 'functions/_middleware.ts、functions/api/admin/_middleware.ts',
+          },
+          {
+            scope: 'Auth',
+            description: 'login / logout / me / refresh / register / reset-password / verify-email',
+          },
+          {
+            scope: 'Features',
+            description: 'bug-reports / subscribers / unsubscribe / visitors/heartbeat / health',
+          },
+          {
+            scope: 'Admin & Logs',
+            description: 'admin/visitors/online / admin/visitors/stats / log-views / logs / logs/list',
+          },
+        ],
+      },
+    ],
+    links: [
+      { label: 'API 在线验证', href: 'https://owlbyte-home.pages.dev/api/bug-reports' },
+      { label: '查看当前部署', href: 'https://owlbyte-home.pages.dev/update' },
+    ],
+  },
+
   // ─────────────── 26w02d ───────────────
   {
     version: '26w02d',

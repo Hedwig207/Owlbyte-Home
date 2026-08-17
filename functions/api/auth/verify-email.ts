@@ -2,7 +2,8 @@
 // Phase C: 从 email_verifications 表校验 token；当前 mock 通过
 import { jsonResponse, errorResponse, verifyJWT, type CFEnv } from '../../_shared/utils';
 
-export default async function handler(request: Request, env: CFEnv): Promise<Response> {
+export async function onRequest(context: { request: Request; env: CFEnv; next: () => Promise<Response>; ctx: any }): Promise<Response> {
+  const { request, env, ctx } = context;
   try {
     const url = new URL(request.url);
     const token = url.searchParams.get('token');

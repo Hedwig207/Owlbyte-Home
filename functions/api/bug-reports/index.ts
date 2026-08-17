@@ -3,7 +3,7 @@
 // @ts-nocheck
 
 import {
-  jsonResponse, errorResponse, checkRateLimit, isMockMode,
+  jsonResponse, errorResponse, checkRateLimit,
 } from '../../_shared/utils';
 
 const RATE_LIMIT_MAX = 10;
@@ -21,7 +21,8 @@ const mockBugReports: Array<{
   status: string;
 }> = [];
 
-export default async function handler(request: Request, env: any, ctx: any): Promise<Response> {
+export async function onRequest(context: { request: Request; env: any; next: () => Promise<Response>; }): Promise<Response> {
+  const { request, env } = context;
   if (request.method === 'GET') {
     return jsonResponse({ reports: mockBugReports });
   }

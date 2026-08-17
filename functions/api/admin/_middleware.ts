@@ -4,7 +4,8 @@
 
 import { verifyJWT, errorResponse, getBearerToken } from '../_shared/utils';
 
-export default async function handler(request: Request, env: any, ctx: any): Promise<Response> {
+export async function onRequest(context: { request: Request; env: any; next: () => Promise<Response>; ctx: any }): Promise<Response> {
+  const { request, env, ctx } = context;
   const token = getBearerToken(request);
   if (!token) {
     return errorResponse('Authentication required', 401);

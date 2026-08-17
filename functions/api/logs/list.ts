@@ -7,7 +7,8 @@
 
 import { jsonResponse, errorResponse, requireAdmin, dbListLogs } from '../../_shared/utils';
 
-export default async function handler(request: Request, env: any, ctx: any): Promise<Response> {
+export async function onRequest(context: { request: Request; env: any; next: () => Promise<Response>; ctx: any }): Promise<Response> {
+  const { request, env, ctx } = context;
   if (request.method !== 'GET') {
     return errorResponse('Method not allowed', 405);
   }

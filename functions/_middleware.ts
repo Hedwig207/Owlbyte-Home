@@ -11,7 +11,8 @@ function getCorsHeaders(request: Request): Record<string,string> {
   };
 }
 
-export default function handler(request: Request, env: any, ctx: any): Response | Promise<Response> {
+export function onRequest(context: { request: Request; env: any; next: () => Promise<Response>; ctx: any }): Response | Promise<Response> {
+  const { request, env, ctx } = context;
   const corsHeaders = getCorsHeaders(request);
 
   if (request.method === 'OPTIONS') {
