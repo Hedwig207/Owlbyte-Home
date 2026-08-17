@@ -100,7 +100,7 @@ export default function BugReportPage() {
     fetch('/api/bug-reports')
       .then(res => res.ok ? res.json() : null)
       .then(data => {
-        if (data?.reports?.length) {
+        if (data && Array.isArray(data.reports)) {
           setReports(data.reports);
           setCloudMode(true);
         }
