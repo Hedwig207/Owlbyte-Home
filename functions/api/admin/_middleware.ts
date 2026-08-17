@@ -2,7 +2,7 @@
 // Requires valid admin JWT for all routes under /api/admin/*
 // @ts-nocheck
 
-import { verifyJWT, errorResponse, getBearerToken } from '../_shared/utils';
+import { verifyJWT, errorResponse, getBearerToken } from '../../_shared/utils';
 
 export async function onRequest(context: { request: Request; env: any; next: () => Promise<Response>; ctx: any }): Promise<Response> {
   const { request, env, ctx } = context;

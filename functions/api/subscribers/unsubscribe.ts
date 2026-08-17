@@ -6,7 +6,7 @@
 
 import {
   jsonResponse, errorResponse, dbUnsubscribe,
-} from '../../../_shared/utils';
+} from '../../_shared/utils';
 
 export async function onRequest(context: { request: Request; env: any; next: () => Promise<Response>; ctx: any }): Promise<Response> {
   const { request, env, ctx } = context;

@@ -4,7 +4,7 @@
 // Returns: { ok: true, id: UUID }
 // @ts-nocheck
 
-import { jsonResponse, errorResponse, dbStoreLog } from '../../_shared/utils';
+import { verifyJWT, errorResponse, jsonResponse, dbStoreLog } from '../_shared/utils';
 
 const VALID_LEVELS = ['error', 'warn', 'info'];
 
