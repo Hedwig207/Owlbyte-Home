@@ -36,6 +36,55 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  // ─────────────── 26w04a ───────────────
+  {
+    version: '26w04a',
+    date: '2026-08-18',
+    title: 'Gary 加入守夜人序列',
+    codename: 'Snapshot 26w04a · 双子',
+    status: 'released',
+    overview:
+      '26w04a 迎来了 OwlByte 守夜人序列的第二位成员——Gary。作为工作室创始人与游戏首席开发者，' +
+      '他负责 OwlByte 全部游戏血脉的开发。本次更新为 Gary 建立了专属详情页，并让守夜人列表页自动扩展。',
+    additions: [
+      {
+        heading: '守夜人',
+        items: [
+          {
+            scope: 'Data',
+            description: 'WATCHMEN 数据新增 Gary 条目',
+            details: [
+              '身份：OwlByte 创始人、游戏首席开发者',
+              '代号：GARY · 02（game-keeper）',
+              '正在开发：轮盘惊魂夜、方舟日记、Minecraft Banboo版',
+            ],
+          },
+          {
+            scope: 'Pages',
+            description: '新增 /watchman/gary 专属详情页',
+            details: [
+              '懒加载（React.lazy + Suspense），不增加首屏体积',
+              'moon 色系主题，与 Hedwig 页的 amber 色系区分',
+              '无头像时以首字母 G 占位，待头像资源上传后自动切换',
+              '沿用渐显动画、标签图标、在研作品展示等既有版式',
+            ],
+          },
+          {
+            scope: 'UI',
+            description: '守夜人列表页自动扩展',
+            details: [
+              '列表动态渲染 WATCHMEN 数组，无需改动列表页代码',
+              '计数自动更新为 2 位守夜人',
+            ],
+          },
+        ],
+      },
+    ],
+    links: [
+      { label: '查看守夜人列表', href: 'https://owlbyte-home.pages.dev/watchman' },
+    ],
+  },
+
   // ─────────────── 26w03b ───────────────
   {
     version: '26w03b',
@@ -48,21 +97,6 @@ export const CHANGELOG: ChangelogEntry[] = [
       '修复了 4 个内存泄漏、1 个 token 刷新竞态条件、1 个安全加固，并优化了 3 处算法性能。' +
       '所有修复均通过 TypeScript 类型检查，不影响现有功能。',
     additions: [
-      {
-        heading: '守夜人',
-        items: [
-          {
-            scope: 'UI',
-            description: '新增第二位成员 Gary 的介绍',
-            details: [
-              '身份：OwlByte 创始人、游戏首席开发者',
-              '新增 /watchman/gary 详情页（懒加载，moon 色系）',
-              '正在开发：轮盘惊魂夜、方舟日记、Minecraft Banboo版',
-              '守夜人列表页自动计数更新为 2 位',
-            ],
-          },
-        ],
-      },
       {
         heading: '缓存',
         items: [
