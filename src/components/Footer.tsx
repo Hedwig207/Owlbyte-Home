@@ -55,6 +55,7 @@ export default function Footer() {
               ...NAV_ITEMS.map((n) => ({ label: n.label, href: n.href })),
               { label: '更新日志', href: '/update' },
               { label: 'Bug 反馈', href: '/bug-report' },
+              { label: '致谢', href: '/thanks' },
             ]}
           />
           <FooterCol title="作品" items={PRODUCTS.map((p) => ({ label: p.name, href: p.href }))} />

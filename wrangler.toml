@@ -1,3 +1,15 @@
 name = "owlbyte-home"
 compatibility_date = "2025-01-01"
 pages_build_output_dir = "dist"
+
+# D1 数据库绑定（持久化用户/订阅/访客/Bug报告数据）
+# 启用步骤：
+#   1. Cloudflare Dashboard → Storage & Databases → D1 → Create database（名字：owlbyte-db）
+#   2. 在 Dashboard 的 D1 Console 中执行 schema.sql 建表
+#   3. 把下面 database_id 替换为新数据库的 ID，去掉注释
+# 完成后 Functions 检测到 DATABASE 绑定即自动从内存模式切换为持久化模式
+#
+# [[d1_databases]]
+# binding = "DATABASE"
+# database_name = "owlbyte-db"
+# database_id = "在此粘贴你的数据库ID"

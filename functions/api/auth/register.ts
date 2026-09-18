@@ -25,18 +25,18 @@ export async function onRequest(context: { request: Request; env: any; next: () 
   const { email, password, displayName } = body || {};
 
   if (!email || !isEmailValid(email)) {
-    return errorResponse('Invalid email format');
+    return errorResponse('邮箱格式不正确', 400, 'INVALID_EMAIL');
   }
   if (!password || password.length < 8) {
-    return errorResponse('Password must be at least 8 characters');
+    return errorResponse('密码至少需要 8 个字符', 400, 'WEAK_PASSWORD');
   }
   if (!displayName || displayName.trim().length === 0) {
-    return errorResponse('Display name is required');
+    return errorResponse('请填写昵称', 400, 'MISSING_DISPLAY_NAME');
   }
 
   const existing = await dbFindUserByEmail(env, email);
   if (existing) {
-    return errorResponse('Email already registered', 409);
+    return errorResponse('该邮箱已被注册', 409, 'EMAIL_TAKEN');
   }
 
   const passwordHash = await hashPassword(password);
@@ -56,7 +56,9 @@ export async function onRequest(context: { request: Request; env: any; next: () 
   await dbStoreEmailVerification(env, email, token);
 
   return jsonResponse({
-    message: isMockMode(env) ? 'Mock: Verification email sent' : '验证邮件已发送',
+    message: isMockMode(env)
+      ? '注册成功（开发模式：数据存于内存，isolate 回收后会丢失，正式数据库接入前请知悉）'
+      : '验证邮件已发送',
     email,
   }, 201);
 }

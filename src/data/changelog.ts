@@ -36,6 +36,94 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  // ─────────────── 26w04b ───────────────
+  {
+    version: '26w04b',
+    date: '2026-08-18',
+    title: '登录系统修复 + 致谢页',
+    codename: 'Snapshot 26w04b · 灯火',
+    status: 'released',
+    overview:
+      '26w04b 修复了登录系统的两个核心问题：错误信息格式与前端不匹配导致永远显示笼统的「请求失败 (401)」，' +
+      '以及开发模式内存数据库随 isolate 回收丢失注册数据的问题。同时上线了全新的致谢页 /thanks，' +
+      '向三位老师致以谢意。',
+    additions: [
+      {
+        heading: '页面',
+        items: [
+          {
+            scope: 'Pages',
+            description: '新增 /thanks 致谢页',
+            details: [
+              '向唐老师（启蒙之恩）、葛老师（治学之道）、许老师（同行之谊）致谢',
+              '三色卡片设计（amber / moon / parchment），懒加载不占首屏',
+              'Footer「章节」栏新增致谢入口',
+            ],
+          },
+        ],
+      },
+    ],
+    changes: [
+      {
+        heading: 'API',
+        items: [
+          {
+            scope: 'API',
+            description: '登录/注册错误信息全面中文化',
+            details: [
+              '注册校验：邮箱格式、密码强度、昵称必填、邮箱重复均返回具体中文提示',
+              '登录失败区分「账号不存在（mock 模式提示数据不持久）」与「密码错误」',
+            ],
+          },
+        ],
+      },
+    ],
+    fixes: [
+      {
+        heading: '登录',
+        items: [
+          {
+            scope: 'API',
+            description: '修复错误响应格式与前端不匹配的问题',
+            details: [
+              '原：后端返回 { error: "字符串" }，前端期望 { error: { code, message } }',
+              '导致所有 API 错误都显示笼统的「请求失败 (401)」而非真实原因',
+              '修复：errorResponse 统一返回 { error: { code, message } } 结构',
+            ],
+          },
+          {
+            scope: 'API',
+            description: '修复内存数据库导致注册账号蒸发的问题',
+            details: [
+              '根因：注册用户存于 Cloudflare isolate 内存，isolate 空闲几十秒即被回收',
+              '导致注册成功后登录必然 401（数据已丢失）',
+              '缓解：mock 模式下登录/注册明确提示「数据不持久，请重新注册」',
+              '根治：新增 schema.sql + wrangler.toml D1 绑定配置（待创建 D1 数据库后启用持久化）',
+            ],
+          },
+        ],
+      },
+    ],
+    technical: [
+      {
+        heading: '持久化',
+        items: [
+          {
+            scope: 'Build',
+            description: '新增 schema.sql，包含 users / refresh_tokens / email_verifications / subscribers / visitors / logs / log_views / bug_reports 全部表结构',
+          },
+          {
+            scope: 'Build',
+            description: 'wrangler.toml 预置 D1 绑定模板：创建 D1 数据库并填入 database_id 后自动切换持久化模式',
+          },
+        ],
+      },
+    ],
+    links: [
+      { label: '查看致谢页', href: 'https://owlbyte-home.pages.dev/thanks' },
+    ],
+  },
+
   // ─────────────── 26w04a ───────────────
   {
     version: '26w04a',

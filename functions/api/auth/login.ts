@@ -37,12 +37,15 @@ export async function onRequest(context: { request: Request; env: any; next: () 
 
   const user = await dbFindUserByEmail(env, email);
   if (!user) {
-    return errorResponse('Invalid credentials', 401);
+    if (isMockMode(env)) {
+      return errorResponse('账号不存在，或开发模式内存数据已被重置（注册数据不持久），请重新注册', 401, 'INVALID_CREDENTIALS');
+    }
+    return errorResponse('邮箱或密码错误', 401, 'INVALID_CREDENTIALS');
   }
 
   const valid = await verifyPassword(password, user.passwordHash);
   if (!valid) {
-    return errorResponse('Invalid credentials', 401);
+    return errorResponse('邮箱或密码错误', 401, 'INVALID_CREDENTIALS');
   }
 
   const accessToken = await signJWT({

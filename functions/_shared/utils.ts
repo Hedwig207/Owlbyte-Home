@@ -44,8 +44,10 @@ export function jsonResponse(body: any, status = 200, extraHeaders: Record<strin
   return new Response(JSON.stringify(body), { status, headers });
 }
 
-export function errorResponse(message: string, status = 400): Response {
-  return jsonResponse({ error: message }, status);
+export function errorResponse(message: string, status = 400, code?: string): Response {
+  // 前端 ApiError 期望 { error: { code, message } } 结构
+  const errCode = code ?? `HTTP_${status}`;
+  return jsonResponse({ error: { code: errCode, message } }, status);
 }
 
 // ========== Cookie Helpers ==========

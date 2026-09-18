@@ -30,6 +30,7 @@ import SettingsDebugPage from '@/pages/SettingsDebug';
 const DevLog = lazy(() => import('@/pages/DevLog'));
 const BugReport = lazy(() => import('@/pages/BugReport'));
 const WatchmanGary = lazy(() => import('@/pages/WatchmanGary'));
+const Thanks = lazy(() => import('@/pages/Thanks'));
 
 function CursorGlow() {
   useCursorGlow();
@@ -74,6 +75,7 @@ function AppShell() {
         <Route path="/watchman" element={<WatchmenPage />} />
         <Route path="/watchman/hedwig" element={<WatchmanHedwigPage />} />
         <Route path="/watchman/gary" element={<Suspense fallback={<div className="flex min-h-screen items-center justify-center text-parchment/50">加载中…</div>}><WatchmanGary /></Suspense>} />
+        <Route path="/thanks" element={<Suspense fallback={<div className="flex min-h-screen items-center justify-center text-parchment/50">加载中…</div>}><Thanks /></Suspense>} />
         <Route path="/update" element={<Suspense fallback={<div className="flex min-h-screen items-center justify-center text-parchment/50">加载中…</div>}><DevLog /></Suspense>} />
         <Route path="/log" element={<Suspense fallback={<div className="flex min-h-screen items-center justify-center text-parchment/50">加载中…</div>}><DevLog /></Suspense>} />
         <Route path="/bug-report" element={<Suspense fallback={<div className="flex min-h-screen items-center justify-center text-parchment/50">加载中…</div>}><BugReport /></Suspense>} />
