@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bug, ArrowLeft, Send, Trash2, Calendar, Tag, FileText, User, AlertTriangle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -92,6 +92,8 @@ export default function BugReportPage() {
 
   const [cloudMode, setCloudMode] = useState(false);
 
+  const submitTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
     // 先加载本地数据（即时显示）
@@ -109,9 +111,12 @@ export default function BugReportPage() {
   }, []);
 
   const stats = useMemo(() => {
-    const open = reports.filter(r => r.status === 'open').length;
-    const seen = reports.filter(r => r.status === 'seen').length;
-    const resolved = reports.filter(r => r.status === 'resolved').length;
+    let open = 0, seen = 0, resolved = 0;
+    for (const r of reports) {
+      if (r.status === 'open') open++;
+      else if (r.status === 'seen') seen++;
+      else if (r.status === 'resolved') resolved++;
+    }
     return { total: reports.length, open, seen, resolved };
   }, [reports]);
 
@@ -169,9 +174,14 @@ export default function BugReportPage() {
       setReproduce('');
       setSummary('');
       setContact('');
-      setTimeout(() => setSubmitMsg(null), 5000);
+      if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
+      submitTimerRef.current = setTimeout(() => setSubmitMsg(null), 5000);
     }
   };
+
+  useEffect(() => () => {
+    if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
+  }, []);
 
   const onDelete = (id: string) => {
     if (!confirm('确定要删除这条 Bug 报告吗？')) return;

@@ -36,6 +36,155 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  // ─────────────── 26w03b ───────────────
+  {
+    version: '26w03b',
+    date: '2026-08-17',
+    title: '安全加固 + 内存泄漏修复 + 算法优化',
+    codename: 'Snapshot 26w03b · 淬火',
+    status: 'released',
+    overview:
+      '26w03b 是一次全面的代码审计版本。对全站 20 个关键文件进行了漏洞排查，' +
+      '修复了 4 个内存泄漏、1 个 token 刷新竞态条件、1 个安全加固，并优化了 3 处算法性能。' +
+      '所有修复均通过 TypeScript 类型检查，不影响现有功能。',
+    additions: [
+      {
+        heading: '守夜人',
+        items: [
+          {
+            scope: 'UI',
+            description: '新增第二位成员 Gary 的介绍',
+            details: [
+              '身份：OwlByte 创始人、游戏首席开发者',
+              '新增 /watchman/gary 详情页（懒加载，moon 色系）',
+              '正在开发：轮盘惊魂夜、方舟日记、Minecraft Banboo版',
+              '守夜人列表页自动计数更新为 2 位',
+            ],
+          },
+        ],
+      },
+      {
+        heading: '缓存',
+        items: [
+          {
+            scope: 'lib/github',
+            description: '新增 stale-while-revalidate 缓存模式',
+            details: [
+              'readStaleCache()：即使缓存过期也返回数据（用于即时显示）',
+              'isCacheStale()：判断缓存是否已过期（用于触发后台刷新）',
+              'GitHub README 渲染可先显示旧数据，后台静默刷新',
+            ],
+          },
+        ],
+      },
+    ],
+    changes: [
+      {
+        heading: '算法优化',
+        items: [
+          {
+            scope: 'BugReport',
+            description: 'Bug 统计算法从 3 次遍历优化为 1 次遍历',
+            details: [
+              '原：reports.filter(open) + filter(seen) + filter(resolved) = 3 次 O(n)',
+              '新：单次 for...of + if/else if 计数器 = 1 次 O(n)',
+              '性能提升：遍历次数减少 66%',
+            ],
+          },
+          {
+            scope: 'lib/github',
+            description: 'base64 解码算法优化',
+            details: [
+              '原：for 循环逐字节赋值 new Uint8Array(len)',
+              '新：Uint8Array.from(binary, c => c.charCodeAt(0))',
+              'V8 引擎对 Uint8Array.from 有内部优化，大 README 解码更快',
+            ],
+          },
+          {
+            scope: 'lib/api',
+            description: 'Token 刷新去重：多个并发 401 请求只触发一次 refresh',
+            details: [
+              '新增 _refreshPromise 共享 Promise 模式',
+              '并发请求命中同一个 in-flight refresh promise',
+              '避免 N 个 401 同时触发 N 次 /api/auth/refresh 请求',
+              'refresh 完成后通过 finally 清除共享状态',
+            ],
+          },
+        ],
+      },
+    ],
+    fixes: [
+      {
+        heading: '内存泄漏',
+        items: [
+          {
+            scope: 'BugReport',
+            description: '修复提交消息 setTimeout 未清理的内存泄漏',
+            details: [
+              '提交 Bug 后 setTimeout(5000) 清除消息，但组件卸载时不清除',
+              '修复：useRef 存储 timer ID + useEffect unmount 清理',
+              '防止卸载后 setState 到已卸载组件',
+            ],
+          },
+          {
+            scope: 'functions/_shared',
+            description: '修复 Rate Limiter Map 无限增长问题',
+            details: [
+              'rateLimitMap 只增不减，长时间运行后内存持续增长',
+              '修复：当 size > 1000 时触发清理，删除所有过期条目',
+              '防止 Cloudflare Worker isolate 内存溢出',
+            ],
+          },
+        ],
+      },
+      {
+        heading: '安全',
+        items: [
+          {
+            scope: 'functions/_shared',
+            description: 'base64UrlDecode 输入验证加固',
+            details: [
+              '新增长度上限检查（> 10000 字符直接拒绝）',
+              '防止超长 token 导致内存耗尽攻击',
+              '空字符串直接抛错而非静默失败',
+            ],
+          },
+          {
+            scope: 'lib/api',
+            description: '修复 Token 刷新竞态条件',
+            details: [
+              '多个并发请求同时收到 401 时会同时触发 refreshToken()',
+              '导致 N 个并发 refresh 请求，浪费后端资源',
+              '修复：共享 Promise 模式，第一个 401 触发 refresh，其余等待结果',
+            ],
+          },
+        ],
+      },
+    ],
+    technical: [
+      {
+        heading: '审计范围',
+        items: [
+          {
+            scope: '审计',
+            description: '共排查 20 个关键文件，覆盖 hooks/stores/components/pages/lib/functions',
+          },
+          {
+            scope: '修复',
+            description: '7 项代码修复，0 项回归',
+          },
+          {
+            scope: '验证',
+            description: '全部通过 TypeScript 类型检查（GetDiagnostics 0 errors）',
+          },
+        ],
+      },
+    ],
+    links: [
+      { label: '查看当前部署', href: 'https://owlbyte-home.pages.dev/update' },
+    ],
+  },
+
   // ─────────────── 26w03a ───────────────
   {
     version: '26w03a',

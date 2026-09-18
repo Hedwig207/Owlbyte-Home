@@ -30,8 +30,7 @@ export function decodeBase64Utf8(b64: string): string {
   try {
     // 用 atob 解码为二进制字符串，再转 UTF-8（处理中文）
     const binary = atob(b64.replace(/\n/g, ''));
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
     return new TextDecoder('utf-8').decode(bytes);
   } catch (e) {
     console.error('base64 解码失败', e);
@@ -49,6 +48,30 @@ export function readCache<T>(key: string): T | null {
     return null;
   } catch {
     return null;
+  }
+}
+
+// Stale-while-revalidate：即使过期也返回缓存数据（用于即时展示），
+// 调用方可通过 isCacheStale 判断是否需要后台刷新。
+export function readStaleCache<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const cached = JSON.parse(raw) as { v: T; t: number };
+    return cached.v;
+  } catch {
+    return null;
+  }
+}
+
+export function isCacheStale(key: string): boolean {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return true;
+    const cached = JSON.parse(raw) as { v: unknown; t: number };
+    return Date.now() - cached.t >= CACHE_TTL.githubShort;
+  } catch {
+    return true;
   }
 }
 

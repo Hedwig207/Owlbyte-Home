@@ -165,6 +165,22 @@ export const WATCHMEN: Watchman[] = [
     avatar: '/assets/Night_Watchman/Hedwig.png',
     quote: '一个人就是一支夜间工程队伍。',
   },
+  {
+    id: 'gary',
+    name: 'Gary',
+    code: 'GARY · 02',
+    roleLabel: 'game-keeper',
+    accent: 'moon',
+    description: 'OwlByte 创始人，游戏首席开发者。工作室的游戏血脉由他亲手铸造——从轮盘的惊险到方舟的漫长航行，他在夜色里构筑一个个可以踏入的世界。',
+    href: '/watchman/gary',
+    roles: ['创始人', '游戏首席开发者'],
+    inDevProjects: [
+      '轮盘惊魂夜',
+      '方舟日记',
+      'Minecraft Banboo版',
+    ],
+    quote: '游戏是夜晚最诚实的故事。',
+  },
 ];
 
 export const SOCIALS: Social[] = [

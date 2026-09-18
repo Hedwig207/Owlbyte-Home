@@ -16,6 +16,7 @@ type RequestOptions = {
 
 // access token 存内存（被 authStore 设置；Phase C 接入）
 let _accessToken: string | null = null;
+let _refreshPromise: Promise<string | null> | null = null;
 export function setAccessToken(token: string | null) {
   _accessToken = token;
 }
@@ -57,18 +58,24 @@ async function parseResponse<T>(res: Response): Promise<T> {
 }
 
 async function refreshToken(): Promise<string | null> {
-  try {
-    const res = await fetch(buildUrl('/api/auth/refresh'), {
-      method: 'POST',
-      credentials: 'include',
-    });
-    if (!res.ok) return null;
-    const data = await res.json() as RefreshResponse;
-    setAccessToken(data.accessToken);
-    return data.accessToken;
-  } catch {
-    return null;
-  }
+  if (_refreshPromise) return _refreshPromise;
+  _refreshPromise = (async () => {
+    try {
+      const res = await fetch(buildUrl('/api/auth/refresh'), {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!res.ok) return null;
+      const data = await res.json() as RefreshResponse;
+      setAccessToken(data.accessToken);
+      return data.accessToken;
+    } catch {
+      return null;
+    } finally {
+      _refreshPromise = null;
+    }
+  })();
+  return _refreshPromise;
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {

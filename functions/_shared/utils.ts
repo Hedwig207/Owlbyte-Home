@@ -26,6 +26,7 @@ function base64UrlEncode(data: string | Uint8Array): string {
 }
 
 function base64UrlDecode(str: string): string {
+  if (!str || str.length > 10000) throw new Error('Invalid token length');
   const padded = str.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - str.length % 4) % 4);
   const binary = atob(padded);
   const bytes = new Uint8Array(binary.length);
@@ -619,6 +620,12 @@ export function checkRateLimit(env: Env, key: string, maxRequests = 5, windowSec
   const entry = rateLimitMap.get(key);
   if (!entry || entry.resetAt < now) {
     rateLimitMap.set(key, { count: 1, resetAt: now + windowSeconds * 1000 });
+    // Periodic cleanup: when map grows large, remove expired entries
+    if (rateLimitMap.size > 1000) {
+      for (const [k, v] of rateLimitMap) {
+        if (v.resetAt < now) rateLimitMap.delete(k);
+      }
+    }
     return true;
   }
   if (entry.count >= maxRequests) return false;
