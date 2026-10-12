@@ -613,6 +613,60 @@ export async function dbGetLogViewStats(env: Env): Promise<{
   }
 }
 
+// ========== Bug Reports (Bug 反馈) ==========
+
+export interface BugReportItem {
+  id: string;
+  category: string;
+  occurTime: string;
+  reproduce: string;
+  summary: string;
+  contact?: string;
+  createdAt: string;
+  status: string;
+}
+
+const mockBugReports: BugReportItem[] = [];
+
+export async function dbListBugReports(env: Env, limit = 100): Promise<BugReportItem[]> {
+  if (isMockMode(env)) {
+    return mockBugReports.slice(0, limit);
+  }
+  try {
+    const result = await env.DATABASE.prepare(
+      'SELECT id, category, occur_time, reproduce, summary, contact, status, created_at FROM bug_reports ORDER BY created_at DESC LIMIT ?'
+    ).bind(limit).all();
+    return (result.results || []).map((r: any) => ({
+      id: r.id,
+      category: r.category,
+      occurTime: r.occur_time,
+      reproduce: r.reproduce,
+      summary: r.summary,
+      contact: r.contact || undefined,
+      status: r.status,
+      createdAt: r.created_at,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function dbAddBugReport(env: Env, item: BugReportItem): Promise<boolean> {
+  if (isMockMode(env)) {
+    mockBugReports.unshift(item);
+    if (mockBugReports.length > 200) mockBugReports.pop();
+    return true;
+  }
+  try {
+    const result = await env.DATABASE.prepare(
+      'INSERT INTO bug_reports (id, category, occur_time, summary, reproduce, contact, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).bind(item.id, item.category, item.occurTime, item.summary, item.reproduce, item.contact || null, item.status, item.createdAt).run();
+    return result.success;
+  } catch {
+    return false;
+  }
+}
+
 // ========== Rate Limiting ==========
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();

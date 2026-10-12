@@ -4,27 +4,17 @@
 
 import {
   jsonResponse, errorResponse, checkRateLimit,
+  dbListBugReports, dbAddBugReport, isMockMode,
 } from '../../_shared/utils';
 
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW = 3600; // 1 hour
 
-// In-memory mock store (per-isolate, ephemeral)
-const mockBugReports: Array<{
-  id: string;
-  category: string;
-  occurTime: string;
-  reproduce: string;
-  summary: string;
-  contact?: string;
-  createdAt: string;
-  status: string;
-}> = [];
-
 export async function onRequest(context: { request: Request; env: any; next: () => Promise<Response>; }): Promise<Response> {
   const { request, env } = context;
   if (request.method === 'GET') {
-    return jsonResponse({ reports: mockBugReports });
+    const reports = await dbListBugReports(env, 100);
+    return jsonResponse({ reports, mode: isMockMode(env) ? 'mock' : 'db' });
   }
 
   if (request.method === 'POST') {
@@ -60,7 +50,10 @@ export async function onRequest(context: { request: Request; env: any; next: () 
       status: 'open',
     };
 
-    mockBugReports.unshift(item);
+    const ok = await dbAddBugReport(env, item);
+    if (!ok) {
+      return errorResponse('Bug 报告存储失败，请稍后重试', 500);
+    }
 
     return jsonResponse({ message: 'Bug 报告已提交', id: item.id }, 201);
   }
